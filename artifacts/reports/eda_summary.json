@@ -1,0 +1,285 @@
+{
+  "temporal": {
+    "days": 1913,
+    "start_date": "2011-01-29",
+    "end_date": "2016-04-24",
+    "total_units": 65695409,
+    "daily_mean": 34341.56,
+    "daily_min": 11,
+    "daily_max": 57218,
+    "weekly_mean": 239764.27,
+    "monthly_mean": 1026490.77
+  },
+  "day_of_week": [
+    {
+      "wday": 1,
+      "weekday": "Saturday",
+      "mean": 41546.89,
+      "median": 42437.0,
+      "std": 6120.410805220055
+    },
+    {
+      "wday": 2,
+      "weekday": "Sunday",
+      "mean": 41130.02,
+      "median": 42586.0,
+      "std": 6997.72783371028
+    },
+    {
+      "wday": 3,
+      "weekday": "Monday",
+      "mean": 32852.97,
+      "median": 33444.0,
+      "std": 5223.531802835388
+    },
+    {
+      "wday": 4,
+      "weekday": "Tuesday",
+      "mean": 30368.78,
+      "median": 30710.0,
+      "std": 5088.427937058428
+    },
+    {
+      "wday": 5,
+      "weekday": "Wednesday",
+      "mean": 30010.02,
+      "median": 30911.0,
+      "std": 5164.106111742743
+    },
+    {
+      "wday": 6,
+      "weekday": "Thursday",
+      "mean": 30205.01,
+      "median": 30658.0,
+      "std": 5342.799233267609
+    },
+    {
+      "wday": 7,
+      "weekday": "Friday",
+      "mean": 34225.99,
+      "median": 34775.0,
+      "std": 5602.039849708823
+    }
+  ],
+  "monthly_seasonality": [
+    {
+      "month": 1,
+      "mean_units": 33832.35
+    },
+    {
+      "month": 2,
+      "mean_units": 34644.64
+    },
+    {
+      "month": 3,
+      "mean_units": 34339.84
+    },
+    {
+      "month": 4,
+      "mean_units": 34258.68
+    },
+    {
+      "month": 5,
+      "mean_units": 32503.85
+    },
+    {
+      "month": 6,
+      "mean_units": 35001.41
+    },
+    {
+      "month": 7,
+      "mean_units": 35122.42
+    },
+    {
+      "month": 8,
+      "mean_units": 35946.65
+    },
+    {
+      "month": 9,
+      "mean_units": 35479.26
+    },
+    {
+      "month": 10,
+      "mean_units": 34713.48
+    },
+    {
+      "month": 11,
+      "mean_units": 33290.83
+    },
+    {
+      "month": 12,
+      "mean_units": 32980.46
+    }
+  ],
+  "store_category": {
+    "stores": [
+      {
+        "store_id": "CA_3",
+        "units": 11188180,
+        "share_percent": 17.03
+      },
+      {
+        "store_id": "CA_1",
+        "units": 7698216,
+        "share_percent": 11.72
+      },
+      {
+        "store_id": "TX_2",
+        "units": 7214384,
+        "share_percent": 10.98
+      },
+      {
+        "store_id": "WI_2",
+        "units": 6544012,
+        "share_percent": 9.96
+      },
+      {
+        "store_id": "WI_3",
+        "units": 6427782,
+        "share_percent": 9.78
+      },
+      {
+        "store_id": "TX_3",
+        "units": 6089330,
+        "share_percent": 9.27
+      },
+      {
+        "store_id": "CA_2",
+        "units": 5685475,
+        "share_percent": 8.65
+      },
+      {
+        "store_id": "TX_1",
+        "units": 5595292,
+        "share_percent": 8.52
+      },
+      {
+        "store_id": "WI_1",
+        "units": 5149062,
+        "share_percent": 7.84
+      },
+      {
+        "store_id": "CA_4",
+        "units": 4103676,
+        "share_percent": 6.25
+      }
+    ],
+    "categories": [
+      {
+        "cat_id": "FOODS",
+        "units": 45089939,
+        "share_percent": 68.63
+      },
+      {
+        "cat_id": "HOUSEHOLD",
+        "units": 14480670,
+        "share_percent": 22.04
+      },
+      {
+        "cat_id": "HOBBIES",
+        "units": 6124800,
+        "share_percent": 9.32
+      }
+    ]
+  },
+  "demand": {
+    "series": 2000,
+    "median_series_total_units": 837.0,
+    "p10_series_total_units": 199.9,
+    "p90_series_total_units": 3453.5,
+    "median_series_daily_mean": 0.438,
+    "median_cv": 1.98,
+    "share_zero_day_rows_percent": 68.33
+  },
+  "intermittency": [
+    {
+      "demand_level": "very_low",
+      "mean_zero_share_percent": 96.49,
+      "median_zero_share_percent": 96.24,
+      "series": 38
+    },
+    {
+      "demand_level": "low",
+      "mean_zero_share_percent": 82.66,
+      "median_zero_share_percent": 83.32,
+      "series": 1087
+    },
+    {
+      "demand_level": "medium",
+      "mean_zero_share_percent": 50.5,
+      "median_zero_share_percent": 52.38,
+      "series": 835
+    },
+    {
+      "demand_level": "high",
+      "mean_zero_share_percent": 24.39,
+      "median_zero_share_percent": 25.93,
+      "series": 40
+    }
+  ],
+  "prices": {
+    "series_priced": 30490,
+    "median_price": 3.3768,
+    "min_price": 0.01,
+    "max_price": 107.32,
+    "median_price_range_ratio": 1.092,
+    "series_with_any_price_change": 22243,
+    "median_price_changes": 2.0
+  },
+  "events": [
+    {
+      "cat_id": "FOODS",
+      "mean_units_non_event": 1.239,
+      "mean_units_event": 1.145,
+      "event_to_non_event_ratio": 0.924
+    },
+    {
+      "cat_id": "HOBBIES",
+      "mean_units_non_event": 0.819,
+      "mean_units_event": 0.724,
+      "event_to_non_event_ratio": 0.884
+    },
+    {
+      "cat_id": "HOUSEHOLD",
+      "mean_units_non_event": 0.724,
+      "mean_units_event": 0.664,
+      "event_to_non_event_ratio": 0.917
+    }
+  ],
+  "spikes": {
+    "threshold_zscore": 4.0,
+    "spike_days": []
+  },
+  "insights": [
+    {
+      "topic": "seasonality",
+      "insight": "Busiest weekday is Saturday at 41,547 mean units/day vs 30,010 on Wednesday; day-of-week seasonality is strong enough that weekly seasonal baselines should beat flat baselines on weekly-aggregated targets."
+    },
+    {
+      "topic": "intermittency",
+      "insight": "1,913 days of history; 68.33% of series-day rows have zero sales. Intermittent, zero-inflated demand means WAPE-style aggregate metrics matter more than per-series percentage errors."
+    },
+    {
+      "topic": "events",
+      "insight": "Event-day means differ from non-event days in the panel (ratio 0.924 for the first category). This is an observational association: event periods also carry promotions and price changes, so it must not be read as a causal effect."
+    },
+    {
+      "topic": "demand_levels",
+      "insight": "Zero-sales share varies by demand level (mean 24.39%-96.49% across buckets). Models should be evaluated per demand-frequency bucket, not just in aggregate."
+    }
+  ],
+  "charts": [
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\daily_weekly_trend.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\day_of_week_pattern.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\monthly_seasonality.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\store_comparison.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\category_comparison.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\demand_distribution.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\intermittency_by_demand_level.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\price_distribution.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\event_effect.png",
+    "E:\\ElasticIQ\\artifacts\\reports\\charts\\demand_spikes.png"
+  ],
+  "panel_series": 2000,
+  "panel_note": "Panel-based statistics (demand distribution, intermittency, events) use the deterministic sample panel, not all 30,490 series."
+}

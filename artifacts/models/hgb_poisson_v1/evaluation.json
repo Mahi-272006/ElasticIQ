@@ -1,0 +1,106 @@
+{
+  "model": {
+    "overall": {
+      "wape_percent": 90.7057,
+      "mae_units": 0.9268,
+      "rows": 56000
+    },
+    "by_horizon": {
+      "7": {
+        "wape_percent": 83.3321,
+        "mae_units": 0.8912,
+        "rows": 14000
+      },
+      "14": {
+        "wape_percent": 86.9261,
+        "mae_units": 0.9159,
+        "rows": 28000
+      },
+      "28": {
+        "wape_percent": 90.7057,
+        "mae_units": 0.9268,
+        "rows": 56000
+      }
+    },
+    "by_category": {
+      "FOODS": {
+        "wape_percent": 92.0982,
+        "mae_units": 1.1811,
+        "rows": 10864
+      },
+      "HOBBIES": {
+        "wape_percent": 101.3261,
+        "mae_units": 0.9641,
+        "rows": 15820
+      },
+      "HOUSEHOLD": {
+        "wape_percent": 84.3563,
+        "mae_units": 0.8124,
+        "rows": 29316
+      }
+    }
+  },
+  "baselines": {
+    "mean_baseline": {
+      "overall": {
+        "wape_percent": 86.4866,
+        "mae_units": 0.8837
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 82.9319,
+          "mae_units": 0.887
+        },
+        "14": {
+          "wape_percent": 84.1681,
+          "mae_units": 0.8868
+        },
+        "28": {
+          "wape_percent": 86.4866,
+          "mae_units": 0.8837
+        }
+      }
+    },
+    "last_day_naive": {
+      "overall": {
+        "wape_percent": 102.0867,
+        "mae_units": 1.0431
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 97.6892,
+          "mae_units": 1.0448
+        },
+        "14": {
+          "wape_percent": 99.7831,
+          "mae_units": 1.0514
+        },
+        "28": {
+          "wape_percent": 102.0867,
+          "mae_units": 1.0431
+        }
+      }
+    },
+    "weekly_seasonal_naive": {
+      "overall": {
+        "wape_percent": 103.8868,
+        "mae_units": 1.0615
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 99.2921,
+          "mae_units": 1.0619
+        },
+        "14": {
+          "wape_percent": 101.0576,
+          "mae_units": 1.0648
+        },
+        "28": {
+          "wape_percent": 103.8868,
+          "mae_units": 1.0615
+        }
+      }
+    }
+  },
+  "comparison_note": "All models are evaluated on the same series, the same validation dates, and with the same recursive 28-day protocol."
+}

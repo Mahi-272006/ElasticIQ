@@ -1,0 +1,81 @@
+{
+  "version": "hgb_poisson_v1",
+  "trained_at_utc": "2026-10-20T16:21:17.514304+00:00",
+  "algorithm": "HistGradientBoostingRegressor",
+  "loss": "poisson",
+  "hyperparameters": {
+    "learning_rate": 0.08,
+    "max_iter_requested": 120,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 20,
+    "early_stopping": true,
+    "random_seed": 42
+  },
+  "library_versions": {
+    "python": "3.14.0",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1"
+  },
+  "training": {
+    "sample_selection": "first 2,000 series in file order (deterministic head selection from the processed panel)",
+    "series": 2000,
+    "train_rows": 3017710,
+    "train_days": "d_1..d_1885",
+    "validation_days": "d_1886..d_1913"
+  },
+  "features": {
+    "numeric": [
+      "lag_1",
+      "lag_7",
+      "lag_14",
+      "lag_28",
+      "rolling_mean_7",
+      "rolling_std_7",
+      "rolling_mean_28",
+      "sell_price",
+      "price_rel_change_7",
+      "wday",
+      "month",
+      "is_event",
+      "snap"
+    ],
+    "categorical": [
+      "cat_id",
+      "dept_id",
+      "store_id",
+      "state_id"
+    ],
+    "leakage_controls": [
+      "lags and rolling windows shift(1) before rolling",
+      "recursive inference feeds predictions back, never validation actuals",
+      "calendar features (weekday, month, SNAP, events) are known in advance"
+    ]
+  },
+  "assumptions": [
+    "future sell prices equal the last observed price unless supplied",
+    "future SNAP/event calendar known (M5 calendar is fully observed)"
+  ],
+  "supported_horizons": [
+    7,
+    14,
+    28
+  ],
+  "evaluation_summary": {
+    "7": {
+      "wape_percent": 83.3321,
+      "mae_units": 0.8912,
+      "rows": 14000
+    },
+    "14": {
+      "wape_percent": 86.9261,
+      "mae_units": 0.9159,
+      "rows": 28000
+    },
+    "28": {
+      "wape_percent": 90.7057,
+      "mae_units": 0.9268,
+      "rows": 56000
+    }
+  }
+}

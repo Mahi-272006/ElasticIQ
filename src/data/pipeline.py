@@ -115,15 +115,51 @@ def melt_sales_long(sales: pd.DataFrame, day_cols: list[str]) -> pd.DataFrame:
     return long
 
 
-def attach_calendar_fields(long: pd.DataFrame, calendar: pd.DataFrame) -> pd.DataFrame:
-    """Add date and week columns to a long sales frame via the ``d`` mapping.
+def state_snap(calendar: pd.DataFrame, state_ids: pd.Series) -> pd.Series:
+    """Select the state-specific SNAP assistance flag for each row.
 
-    Expects a calendar cleaned by :func:`clean_calendar` (which provides the
-    ``is_event`` flag).
+    SNAP purchase windows differ by state, so the ``snap_CA``/``snap_TX``/
+    ``snap_WI`` column is chosen per row based on its state.
     """
 
-    fields = calendar[["d", "date", "wm_yr_wk", "wday", "month", "is_event"]]
-    return long.merge(fields, on="d", how="left", validate="many_to_one")
+    snap_columns = [
+        col for col in ("snap_CA", "snap_TX", "snap_WI") if col in calendar.columns
+    ]
+    if not snap_columns:
+        raise KeyError("Calendar has no snap_* columns")
+
+    snap = calendar[snap_columns].copy()
+    snap.columns = [col.replace("snap_", "") for col in snap_columns]
+    state = state_ids.astype(str).to_numpy()
+    available = [col for col in snap.columns if col in set(state)]
+    if not available:
+        raise KeyError(f"No snap columns for states {sorted(set(state))}")
+
+    picked = snap[available].to_numpy()
+    positions = {name: index for index, name in enumerate(available)}
+    indices = np.array([positions.get(name, 0) for name in state])
+
+    return pd.Series(
+        picked[np.arange(len(state)), indices],
+        index=state_ids.index,
+        name="snap",
+    )
+
+
+def attach_calendar_fields(long: pd.DataFrame, calendar: pd.DataFrame) -> pd.DataFrame:
+    """Add date, week, and SNAP columns to a long sales frame.
+
+    Expects a calendar cleaned by :func:`clean_calendar` (which provides the
+    ``is_event`` flag and snap columns).
+    """
+
+    fields = calendar[["d", "date", "wm_yr_wk", "wday", "month", "is_event"]].copy()
+    merged = long.merge(fields, on="d", how="left", validate="many_to_one")
+
+    snap_rows = calendar.set_index("d").loc[merged["d"]].reset_index(drop=True)
+    merged["snap"] = state_snap(snap_rows, merged["state_id"]).to_numpy()
+
+    return merged
 
 
 def attach_prices(long: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
