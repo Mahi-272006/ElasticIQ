@@ -1,41 +1,41 @@
 {
   "model": {
     "overall": {
-      "wape_percent": 90.7057,
-      "mae_units": 0.9268,
+      "wape_percent": 88.8277,
+      "mae_units": 0.9076,
       "rows": 56000
     },
     "by_horizon": {
       "7": {
-        "wape_percent": 83.3321,
-        "mae_units": 0.8912,
+        "wape_percent": 83.2103,
+        "mae_units": 0.8899,
         "rows": 14000
       },
       "14": {
-        "wape_percent": 86.9261,
-        "mae_units": 0.9159,
+        "wape_percent": 86.1189,
+        "mae_units": 0.9074,
         "rows": 28000
       },
       "28": {
-        "wape_percent": 90.7057,
-        "mae_units": 0.9268,
+        "wape_percent": 88.8277,
+        "mae_units": 0.9076,
         "rows": 56000
       }
     },
     "by_category": {
       "FOODS": {
-        "wape_percent": 92.0982,
-        "mae_units": 1.1811,
+        "wape_percent": 91.9497,
+        "mae_units": 1.1792,
         "rows": 10864
       },
       "HOBBIES": {
-        "wape_percent": 101.3261,
-        "mae_units": 0.9641,
+        "wape_percent": 97.3741,
+        "mae_units": 0.9265,
         "rows": 15820
       },
       "HOUSEHOLD": {
-        "wape_percent": 84.3563,
-        "mae_units": 0.8124,
+        "wape_percent": 82.7306,
+        "mae_units": 0.7968,
         "rows": 29316
       }
     }

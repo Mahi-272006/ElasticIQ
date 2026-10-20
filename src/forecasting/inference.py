@@ -17,11 +17,13 @@ import pandas as pd
 
 from src.config import get_settings
 from src.data.pipeline import load_processed, state_snap
-from src.features.engineering import FEATURE_COLUMNS, build_features
+from src.features.engineering import (
+    FEATURE_COLUMNS,
+    REQUIRED_HISTORY_DAYS,  # single source of truth with training features
+    build_features,
+)
 
 logger = logging.getLogger(__name__)
-
-REQUIRED_HISTORY_DAYS = 30  # 28-day windows + 1 observed day for lags
 
 MODEL_COLUMNS = [
     "id",

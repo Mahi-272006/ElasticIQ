@@ -1,6 +1,6 @@
 {
   "version": "hgb_poisson_v1",
-  "trained_at_utc": "2026-10-20T16:21:17.514304+00:00",
+  "trained_at_utc": "2026-10-20T17:42:53.952538+00:00",
   "algorithm": "HistGradientBoostingRegressor",
   "loss": "poisson",
   "hyperparameters": {
@@ -27,18 +27,25 @@
   "features": {
     "numeric": [
       "lag_1",
+      "lag_3",
       "lag_7",
       "lag_14",
       "lag_28",
       "rolling_mean_7",
       "rolling_std_7",
+      "rolling_mean_14",
       "rolling_mean_28",
+      "rolling_std_28",
+      "rolling_mean_56",
+      "log1p_lag_1",
+      "log1p_rolling_mean_28",
       "sell_price",
       "price_rel_change_7",
       "wday",
       "month",
       "is_event",
-      "snap"
+      "snap",
+      "day_trend"
     ],
     "categorical": [
       "cat_id",
@@ -63,18 +70,18 @@
   ],
   "evaluation_summary": {
     "7": {
-      "wape_percent": 83.3321,
-      "mae_units": 0.8912,
+      "wape_percent": 83.2103,
+      "mae_units": 0.8899,
       "rows": 14000
     },
     "14": {
-      "wape_percent": 86.9261,
-      "mae_units": 0.9159,
+      "wape_percent": 86.1189,
+      "mae_units": 0.9074,
       "rows": 28000
     },
     "28": {
-      "wape_percent": 90.7057,
-      "mae_units": 0.9268,
+      "wape_percent": 88.8277,
+      "mae_units": 0.9076,
       "rows": 56000
     }
   }

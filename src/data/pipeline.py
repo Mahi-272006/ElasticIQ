@@ -38,7 +38,7 @@ from src.data.storage import processed_path, read_frame, write_frame
 logger = logging.getLogger(__name__)
 
 METADATA_COLUMNS = ["id", "item_id", "dept_id", "cat_id", "store_id", "state_id"]
-HISTORY_TAIL_DAYS = 56  # 28-day lags + 28-day rolling context at inference time
+HISTORY_TAIL_DAYS = 80  # >= features REQUIRED_HISTORY_DAYS (60) + headroom
 
 PRICE_CHUNK_SIZE = 500_000
 

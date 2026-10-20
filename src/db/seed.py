@@ -97,9 +97,10 @@ def seed_model_versions(session: Session, models_dir: Path) -> list[str]:
         version for (version,) in session.execute(select(ModelVersion.version)).all()
     }
     added: list[str] = []
+    refreshed: list[str] = []
 
     for path in sorted(models_dir.iterdir()):
-        if not path.is_dir() or path.name in existing:
+        if not path.is_dir():
             continue
 
         metadata_path = path / "metadata.json"
@@ -115,21 +116,39 @@ def seed_model_versions(session: Session, models_dir: Path) -> list[str]:
             with evaluation_path.open(encoding="utf-8") as handle:
                 evaluation = json.load(handle)
 
-        trained_at = metadata.get("trained_at")
+        trained_at = metadata.get("trained_at") or metadata.get("trained_at_utc")
+        parsed_trained_at = (
+            pd.Timestamp(trained_at).to_pydatetime() if trained_at else None
+        )
+
+        if path.name in existing:
+            # Retraining rewrites artifacts under the same version name:
+            # refresh recorded metrics so the DB matches what is on disk.
+            row = session.scalar(
+                select(ModelVersion).where(ModelVersion.version == path.name)
+            )
+            if row is not None:
+                row.algorithm = str(metadata.get("algorithm", row.algorithm))
+                row.metrics_json = json.dumps(evaluation)
+                row.metadata_json = json.dumps(metadata)
+                row.trained_at = parsed_trained_at
+                refreshed.append(path.name)
+            continue
+
         session.add(
             ModelVersion(
                 version=path.name,
                 algorithm=str(metadata.get("algorithm", "unknown")),
                 metrics_json=json.dumps(evaluation),
                 metadata_json=json.dumps(metadata),
-                trained_at=pd.Timestamp(trained_at).to_pydatetime()
-                if trained_at
-                else None,
+                trained_at=parsed_trained_at,
             )
         )
         added.append(path.name)
 
     session.flush()
+    if refreshed:
+        logger.info("Refreshed metrics for existing versions: %s", refreshed)
     return added
 
 
