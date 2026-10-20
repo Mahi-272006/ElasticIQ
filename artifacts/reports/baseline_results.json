@@ -1,0 +1,10 @@
+{
+  "experiment": "28-day mean baseline",
+  "series_count": 500,
+  "training_days": 1885,
+  "validation_days": 28,
+  "lookback_days": 28,
+  "baseline_wape_percent": 91.1888,
+  "last_day_naive_wape_percent": 103.6627,
+  "note": "Initial benchmark on the first 500 product-store series. Use the same series and validation dates for future comparisons."
+}

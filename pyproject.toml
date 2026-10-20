@@ -1,0 +1,25 @@
+[project]
+name = "elasticiq"
+version = "0.1.0"
+description = "ElasticIQ - Demand Forecasting, Pricing Intelligence & Inventory Decision Platform"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+markers = [
+    "integration: tests that read the full local M5 dataset (deselect with '-m \"not integration\"')",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files use fixture shortnames and plain asserts.
+"tests/*" = ["E501"]

@@ -1,0 +1,9 @@
+{
+  "experiment": "weekly seasonal naive",
+  "series_count": 500,
+  "training_days": 1885,
+  "validation_days": 28,
+  "seasonal_period_days": 7,
+  "wape_percent": 108.7331,
+  "note": "Same first 500 series and same final 28 validation days as the initial baseline."
+}

@@ -1,0 +1,36 @@
+# Environments
+.venv/
+venv/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local environment files (never commit secrets)
+.env
+.env.local
+
+# Local database
+*.db
+*.sqlite3
+
+# Raw and processed data (large; keep out of git)
+data/raw/
+data/processed/
+
+# Build output
+frontend/node_modules/
+frontend/dist/
+
+# Editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# Jupyter checkpoints
+.ipynb_checkpoints/

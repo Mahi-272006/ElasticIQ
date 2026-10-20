@@ -1,0 +1,148 @@
+{
+  "sales": {
+    "product_rows": 30490,
+    "metadata_columns": [
+      "id",
+      "item_id",
+      "dept_id",
+      "cat_id",
+      "store_id",
+      "state_id"
+    ],
+    "daily_observation_columns": 1913,
+    "total_units_sold": 65695409,
+    "zero_sales_products": 0,
+    "products_with_any_zero_sales_day": 30490,
+    "daily_sales": {
+      "mean": 34341.56,
+      "median": 33732.0,
+      "minimum": 11,
+      "maximum": 57218
+    },
+    "top_stores_by_units": [
+      {
+        "store_id": "CA_3",
+        "units": 11188180
+      },
+      {
+        "store_id": "CA_1",
+        "units": 7698216
+      },
+      {
+        "store_id": "TX_2",
+        "units": 7214384
+      },
+      {
+        "store_id": "WI_2",
+        "units": 6544012
+      },
+      {
+        "store_id": "WI_3",
+        "units": 6427782
+      },
+      {
+        "store_id": "TX_3",
+        "units": 6089330
+      },
+      {
+        "store_id": "CA_2",
+        "units": 5685475
+      },
+      {
+        "store_id": "TX_1",
+        "units": 5595292
+      },
+      {
+        "store_id": "WI_1",
+        "units": 5149062
+      },
+      {
+        "store_id": "CA_4",
+        "units": 4103676
+      }
+    ],
+    "category_sales": [
+      {
+        "category": "FOODS",
+        "units": 45089939
+      },
+      {
+        "category": "HOUSEHOLD",
+        "units": 14480670
+      },
+      {
+        "category": "HOBBIES",
+        "units": 6124800
+      }
+    ],
+    "top_10_items_by_units": [
+      {
+        "item_id": "FOODS_3_090",
+        "units": 1002529
+      },
+      {
+        "item_id": "FOODS_3_586",
+        "units": 920242
+      },
+      {
+        "item_id": "FOODS_3_252",
+        "units": 565299
+      },
+      {
+        "item_id": "FOODS_3_555",
+        "units": 491287
+      },
+      {
+        "item_id": "FOODS_3_714",
+        "units": 396172
+      },
+      {
+        "item_id": "FOODS_3_587",
+        "units": 396119
+      },
+      {
+        "item_id": "FOODS_3_694",
+        "units": 390001
+      },
+      {
+        "item_id": "FOODS_3_226",
+        "units": 363082
+      },
+      {
+        "item_id": "FOODS_3_202",
+        "units": 295689
+      },
+      {
+        "item_id": "FOODS_3_723",
+        "units": 284333
+      }
+    ]
+  },
+  "prices": {
+    "rows": 6841121,
+    "missing_prices": 0,
+    "non_positive_prices": 0,
+    "mean_price": 4.411,
+    "minimum_price": 0.01,
+    "maximum_price": 107.32
+  },
+  "calendar": {
+    "rows": 1969,
+    "invalid_dates": 0,
+    "start_date": "2011-01-29",
+    "end_date": "2016-06-19",
+    "unique_dates": 1969,
+    "event_columns": [
+      "event_name_1",
+      "event_type_1",
+      "event_name_2",
+      "event_type_2"
+    ],
+    "non_null_event_counts": {
+      "event_name_1": 162,
+      "event_type_1": 162,
+      "event_name_2": 5,
+      "event_type_2": 5
+    }
+  }
+}
