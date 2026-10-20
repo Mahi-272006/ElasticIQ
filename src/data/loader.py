@@ -74,16 +74,18 @@ def load_csv(
     file_name: str,
     nrows: int | None = None,
     data_dir: Path | None = None,
+    dtype: dict | None = None,
 ) -> pd.DataFrame:
     """Load an expected CSV file into a Pandas DataFrame.
 
-    Use nrows to load only a sample when exploring large files.
+    Use nrows to load only a sample when exploring large files, and dtype to
+    compact wide numeric columns at read time instead of converting later.
     """
 
     file_path = get_csv_path(file_name, data_dir)
 
     try:
-        return pd.read_csv(file_path, nrows=nrows)
+        return pd.read_csv(file_path, nrows=nrows, dtype=dtype)
     except pd.errors.EmptyDataError as exc:
         raise ValueError(f"The CSV file is empty: {file_name}") from exc
     except pd.errors.ParserError as exc:
