@@ -1,0 +1,41 @@
+# ElasticIQ production-style stack: PostgreSQL + API/dashboard.
+#
+# NOT locally verified (Docker unavailable on the authoring machine).
+# Processed data must be mounted or generated before the API can serve it.
+#
+#   docker compose up --build
+#
+# The API runs migrations automatically at startup (create_all for dev
+# convenience; `alembic upgrade head` remains canonical for schema changes).
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: elasticiq
+      POSTGRES_PASSWORD: elasticiq
+      POSTGRES_DB: elasticiq
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elasticiq"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ELASTICIQ_DATABASE_URL: postgresql+psycopg://elasticiq:elasticiq@db:5432/elasticiq
+      ELASTICIQ_CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    volumes:
+      # Point this at your processed Parquet directory (pipeline output).
+      - ./data/processed:/app/data/processed:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
