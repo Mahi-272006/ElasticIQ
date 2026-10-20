@@ -87,6 +87,35 @@ def _startup_checks(app: FastAPI) -> None:
     )
 
 
+def _mount_frontend(app: FastAPI, settings) -> None:
+    """Serve the built React dashboard from frontend/dist when present.
+
+    Registered after the API routers so /api/** and /health always win;
+    unknown paths fall back to index.html (client-side routing).
+    """
+
+    dist = settings.project_root / "frontend" / "dist"
+    if not (dist / "index.html").is_file():
+        logger.info("No frontend build at %s; API-only mode", dist)
+        return
+
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    assets = dist / "assets"
+    if assets.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def spa_fallback(full_path: str) -> FileResponse:
+        target = dist / full_path
+        if full_path and target.is_file():
+            return FileResponse(target)
+        return FileResponse(dist / "index.html")
+
+    logger.info("Serving frontend build from %s", dist)
+
+
 def create_app(state: AppState | None = None) -> FastAPI:
     """Build the ElasticIQ API application."""
 
@@ -163,6 +192,8 @@ def create_app(state: AppState | None = None) -> FastAPI:
             "api_base": "/api/v1",
             "health": "/health",
         }
+
+    _mount_frontend(app, settings)
 
     return app
 
