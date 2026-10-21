@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { api } from "../api/client";
 import { ErrorBox, Kpi, Note, PageHead, Spinner, num, useAsync } from "../components/ui";
+import { effectiveVersion } from "../lib/version";
 
 interface HorizonRow {
   horizon: string;
@@ -23,9 +24,14 @@ interface HorizonRow {
 export default function Models() {
   const [selected, setSelected] = useState<string | null>(null);
   const versions = useAsync(() => api.models(), []);
+  // Single source of truth for "which version is active": the detail fetch
+  // and the <select> value must derive from the same value, otherwise the
+  // dropdown can show a version whose detail was never requested and the
+  // page falsely reports "No trained model found".
+  const active = effectiveVersion(selected, versions.data?.items);
   const detail = useAsync(
-    () => (selected ? api.model(selected) : Promise.resolve(null)),
-    [selected],
+    () => (active ? api.model(active) : Promise.resolve(null)),
+    [active],
   );
 
   const evaluation = detail.data?.evaluation;
@@ -63,7 +69,7 @@ export default function Models() {
         <label className="field">
           Model version
           <select
-            value={selected ?? versions.data?.items[0]?.version ?? ""}
+            value={active ?? ""}
             onChange={(e) => setSelected(e.target.value)}
           >
             {versions.data?.items.map((item: any) => (
