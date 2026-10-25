@@ -11,7 +11,23 @@ import {
 } from "recharts";
 import { api } from "../api/client";
 import type { OptimizeResult, PricingScenarioResponse } from "../api/types";
-import { ErrorBox, Kpi, Note, PageHead, Spinner, num } from "../components/ui";
+import {
+  CHART_COLORS,
+  gridProps,
+  tooltipProps,
+  xAxisProps,
+  yAxisProps,
+} from "../components/charts";
+import {
+  EmptyState,
+  ErrorBox,
+  Metric,
+  Note,
+  PageHead,
+  Panel,
+  Spinner,
+  num,
+} from "../components/ui";
 
 interface FormState {
   current_price: string;
@@ -123,6 +139,9 @@ export default function Pricing() {
     }
   }
 
+  const signed = (value: number, digits = 2) =>
+    `${value > 0 ? "+" : ""}${num(value, digits)}%`;
+
   return (
     <>
       <PageHead
@@ -131,9 +150,9 @@ export default function Pricing() {
       />
 
       <div className="grid cols-2">
-        <div className="card">
-          <h3>Scenario inputs</h3>
-          <div className="controls">
+        <Panel title="Scenario inputs" tag="your inputs">
+          <div className="form-legend">Price inputs</div>
+          <div className="form-grid">
             <label className="field">
               Current price
               <input value={form.current_price} onChange={set("current_price")} />
@@ -151,9 +170,11 @@ export default function Pricing() {
               <input value={form.baseline_units} onChange={set("baseline_units")} />
             </label>
           </div>
-          <div className="controls">
+
+          <div className="form-legend">Demand assumption</div>
+          <div className="form-grid">
             <label className="field">
-              Demand model
+              Model
               <select value={form.demand_model} onChange={set("demand_model")}>
                 <option value="constant">constant (no response)</option>
                 <option value="elasticity">constant elasticity</option>
@@ -173,7 +194,9 @@ export default function Pricing() {
               </label>
             ) : null}
           </div>
-          <div className="controls">
+
+          <div className="form-legend">Constraints</div>
+          <div className="form-grid">
             <label className="field">
               Min price
               <input value={form.min_price} onChange={set("min_price")} />
@@ -191,7 +214,8 @@ export default function Pricing() {
               />
             </label>
           </div>
-          <div className="controls" style={{ marginBottom: 0 }}>
+
+          <div className="controls mt-3">
             <button onClick={runScenario} disabled={busy}>
               Run scenario
             </button>
@@ -204,29 +228,28 @@ export default function Pricing() {
           </div>
           {busy ? <Spinner label="Computing…" /> : null}
           {error ? <ErrorBox message={error} /> : null}
-        </div>
+        </Panel>
 
-        <div className="card">
-          <h3>Outcome</h3>
+        <Panel title="Outcome" tag="modeled under your assumption">
           {scenario ? (
             <>
-              <div className="grid cols-2">
-                <Kpi
+              <div className="metrics">
+                <Metric
                   label="Revenue change"
-                  value={`${scenario.outcome.revenue_change_percent > 0 ? "+" : ""}${num(scenario.outcome.revenue_change_percent, 2)}%`}
+                  value={signed(scenario.outcome.revenue_change_percent)}
                   sub={`${num(scenario.outcome.current_revenue)} → ${num(scenario.outcome.candidate_revenue)}`}
                 />
-                <Kpi
+                <Metric
                   label="Profit change"
-                  value={`${scenario.outcome.profit_change_percent > 0 ? "+" : ""}${num(scenario.outcome.profit_change_percent, 2)}%`}
+                  value={signed(scenario.outcome.profit_change_percent)}
                   sub={`${num(scenario.outcome.current_gross_profit)} → ${num(scenario.outcome.candidate_gross_profit)}`}
                 />
-                <Kpi
+                <Metric
                   label="Expected units"
                   value={`${num(scenario.outcome.expected_units_current, 1)} → ${num(scenario.outcome.expected_units_candidate, 1)}`}
                   sub="current → candidate"
                 />
-                <Kpi
+                <Metric
                   label="Assumed demand model"
                   value={String(scenario.request.demand_model)}
                   sub={
@@ -248,57 +271,63 @@ export default function Pricing() {
               <Note honesty>{scenario.honesty_note}</Note>
             </>
           ) : (
-            <div className="muted small">
-              Run a scenario to see revenue/profit deltas under your stated assumption.
-            </div>
+            <EmptyState>
+              Run a scenario to see revenue and profit deltas under your stated
+              assumption. Every figure here is modeled, not observed.
+            </EmptyState>
           )}
-        </div>
+        </Panel>
       </div>
 
       {optimize ? (
-        <div className="card" style={{ marginTop: 14 }}>
-          <h3>Optimization — {optimize.objective}</h3>
-          <div className="grid cols-4">
-            <Kpi label="Optimal price" value={num(optimize.optimal_price, 2)} />
-            <Kpi label="Optimal gross profit" value={num(optimize.optimal_gross_profit, 2)} />
-            <Kpi
-              label="Improvement vs current"
-              value={`${num(optimize.improvement_percent, 2)}%`}
-            />
-            <Kpi
+        <Panel className="mt-3" title={`Optimization — ${optimize.objective}`} tag="modeled">
+          <div className="metrics">
+            <Metric label="Optimal price" value={num(optimize.optimal_price, 2)} />
+            <Metric label="Optimal gross profit" value={num(optimize.optimal_gross_profit, 2)} />
+            <Metric label="Improvement vs current" value={`${num(optimize.improvement_percent, 2)}%`} />
+            <Metric
               label="Feasible prices"
               value={`${optimize.feasible_prices} / ${optimize.evaluated_prices}`}
             />
           </div>
-          <div className="chart-box" style={{ marginTop: 12 }}>
+          <div
+            className="chart-box mt-3"
+            role="img"
+            aria-label="Expected gross profit as a function of price"
+          >
             <ResponsiveContainer>
-              <LineChart data={optimize.all_prices}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2a3345" />
+              <LineChart data={optimize.all_prices} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                <CartesianGrid {...gridProps} />
                 <XAxis
                   dataKey="price"
-                  stroke="#8b98ad"
-                  fontSize={11}
+                  {...xAxisProps}
                   type="number"
                   domain={["dataMin", "dataMax"]}
+                  tickFormatter={(v: number) => num(v, 2)}
                 />
-                <YAxis stroke="#8b98ad" fontSize={11} />
+                <YAxis {...yAxisProps} tickFormatter={(v: number) => num(v, 0)} />
                 <Tooltip
-                  contentStyle={{ background: "#1a2130", border: "1px solid #2a3345" }}
-                  formatter={(value: any, name: any) => [num(value, 2), name]}
+                  {...tooltipProps}
+                  formatter={(value: unknown, name: unknown) => [
+                    num(Number(value), 2),
+                    String(name),
+                  ]}
                 />
                 <Line
                   type="monotone"
                   dataKey="gross_profit"
-                  stroke="#3fb97f"
+                  stroke={CHART_COLORS.primary}
                   dot={false}
                   strokeWidth={2}
                   name="Expected gross profit"
+                  isAnimationActive={false}
                 />
                 <ReferenceDot
                   x={optimize.optimal_price}
                   y={optimize.optimal_gross_profit}
-                  r={5}
-                  fill="#d9a441"
+                  r={4}
+                  fill={CHART_COLORS.amber}
+                  stroke="none"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -308,39 +337,46 @@ export default function Pricing() {
               <li key={a}>{a}</li>
             ))}
           </ul>
-        </div>
+        </Panel>
       ) : null}
 
       {sweep ? (
-        <div className="card" style={{ marginTop: 14 }}>
-          <h3>Sensitivity sweep — same price move, different assumed elasticities</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Assumed ε</th>
-                <th>Expected units</th>
-                <th>Revenue</th>
-                <th>Gross profit</th>
-                <th>Profit change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sweep.map((row) => (
-                <tr key={row.elasticity}>
-                  <td>{row.elasticity}</td>
-                  <td>{num(row.expected_units, 2)}</td>
-                  <td>{num(row.candidate_revenue, 2)}</td>
-                  <td>{num(row.candidate_gross_profit, 2)}</td>
-                  <td>{num(row.profit_change_percent, 2)}%</td>
+        <Panel
+          className="mt-3"
+          title="Sensitivity sweep"
+          sub="same price move, different assumed elasticities"
+          tag="modeled"
+        >
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th className="num">Assumed ε</th>
+                  <th className="num">Expected units</th>
+                  <th className="num">Revenue</th>
+                  <th className="num">Gross profit</th>
+                  <th className="num">Profit change</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {sweep.map((row) => (
+                  <tr key={row.elasticity}>
+                    <td className="num">{row.elasticity}</td>
+                    <td className="num">{num(row.expected_units, 2)}</td>
+                    <td className="num">{num(row.candidate_revenue, 2)}</td>
+                    <td className="num">{num(row.candidate_gross_profit, 2)}</td>
+                    <td className="num">{num(row.profit_change_percent, 2)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <Note honesty>
-            The spread across rows is the honest answer: the data cannot identify which
-            elasticity is true, so the decision depends on the assumption you bring.
+            The spread across rows is the honest answer: the data cannot identify
+            which elasticity is true, so the decision depends on the assumption you
+            bring.
           </Note>
-        </div>
+        </Panel>
       ) : null}
     </>
   );

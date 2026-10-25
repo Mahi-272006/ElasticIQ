@@ -1,7 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Dev server proxies API calls to the FastAPI backend.
+// Dev server proxies API calls to the FastAPI backend. Override the target with
+// VITE_PROXY_TARGET when the backend runs elsewhere; the default preserves the
+// existing local setup (http://127.0.0.1:8000).
+const proxyTarget = process.env.VITE_PROXY_TARGET ?? "http://127.0.0.1:8000";
+
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -17,8 +21,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      "/health": { target: "http://127.0.0.1:8000", changeOrigin: true },
+      "/api": { target: proxyTarget, changeOrigin: true },
+      "/health": { target: proxyTarget, changeOrigin: true },
     },
   },
 });

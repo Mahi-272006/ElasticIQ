@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { api } from "../api/client";
 import type { InventoryResponse } from "../api/types";
-import { ErrorBox, Kpi, Note, PageHead, Spinner, StatusBadge, num } from "../components/ui";
+import {
+  EmptyState,
+  ErrorBox,
+  Metric,
+  Note,
+  PageHead,
+  Panel,
+  Spinner,
+  StatusBadge,
+  num,
+} from "../components/ui";
 
 export default function Inventory() {
   const [seriesId, setSeriesId] = useState("FOODS_3_090_CA_1_validation");
@@ -51,16 +61,16 @@ export default function Inventory() {
   return (
     <>
       <PageHead
-        title="Inventory planning"
+        title="Inventory"
         subtitle="Reorder points, safety stock, and order-up-to levels from forecast demand. The M5 dataset has no stock or lead-time data — every inventory parameter below is yours to supply."
       />
 
       <div className="grid cols-2">
-        <div className="card">
-          <h3>Inputs</h3>
-          <div className="controls">
+        <Panel title="Inputs" tag="your inputs">
+          <div className="form-legend">Demand</div>
+          <div className="form-grid">
             <label className="field">
-              Demand source
+              Source
               <select
                 value={useSeries ? "series" : "explicit"}
                 onChange={(e) => setUseSeries(e.target.value === "series")}
@@ -70,7 +80,7 @@ export default function Inventory() {
               </select>
             </label>
             {useSeries ? (
-              <label className="field" style={{ minWidth: 240 }}>
+              <label className="field" style={{ gridColumn: "span 2" }}>
                 Series id
                 <input value={seriesId} onChange={(e) => setSeriesId(e.target.value)} />
               </label>
@@ -97,7 +107,9 @@ export default function Inventory() {
               </select>
             </label>
           </div>
-          <div className="controls">
+
+          <div className="form-legend">Service &amp; lead time</div>
+          <div className="form-grid">
             <label className="field">
               Service level
               <select
@@ -115,6 +127,7 @@ export default function Inventory() {
               Lead time (days)
               <input
                 type="number"
+                min={0}
                 value={leadTime}
                 onChange={(e) => setLeadTime(Number(e.target.value))}
               />
@@ -123,10 +136,15 @@ export default function Inventory() {
               Review period (days)
               <input
                 type="number"
+                min={0}
                 value={reviewPeriod}
                 onChange={(e) => setReviewPeriod(Number(e.target.value))}
               />
             </label>
+          </div>
+
+          <div className="form-legend">Inventory position</div>
+          <div className="form-grid">
             <label className="field">
               On hand
               <input value={onHand} onChange={(e) => setOnHand(e.target.value)} />
@@ -136,35 +154,54 @@ export default function Inventory() {
               <input value={openOrders} onChange={(e) => setOpenOrders(e.target.value)} />
             </label>
           </div>
-          <button onClick={run} disabled={busy}>
-            {busy ? "Computing…" : "Get recommendation"}
-          </button>
+
+          <div className="mt-3">
+            <button onClick={run} disabled={busy}>
+              {busy ? "Computing…" : "Get recommendation"}
+            </button>
+          </div>
           {busy ? <Spinner /> : null}
           {error ? <ErrorBox message={error} /> : null}
-        </div>
+        </Panel>
 
-        <div className="card">
-          <h3>Recommendation</h3>
+        <Panel title="Recommendation" tag="modeled">
           {rec && result ? (
             <>
-              <div style={{ marginBottom: 10, display: "flex", gap: 8, alignItems: "center" }}>
+              <div className="inline" style={{ marginBottom: 12 }}>
                 <StatusBadge status={rec.status} />
                 <span className="small muted">
-                  demand from {result.demand_source === "explicit" ? "explicit stats" : "series forecast"}
-                  {result.recommendation_id ? ` · saved as #${result.recommendation_id}` : ""}
+                  demand from{" "}
+                  {result.demand_source === "explicit"
+                    ? "explicit stats"
+                    : "series forecast"}
+                  {result.recommendation_id
+                    ? ` · saved as #${result.recommendation_id}`
+                    : ""}
                 </span>
               </div>
-              <div className="grid cols-2">
-                <Kpi label="Reorder point" value={num(rec.reorder_point, 1)} sub={`${num(rec.lead_time_demand, 1)} lead demand + ${num(rec.safety_stock, 1)} safety`} />
-                <Kpi label="Order-up-to level" value={num(rec.order_up_to_level, 1)} sub={`coverage ${leadTime + reviewPeriod} days`} />
-                <Kpi
+              <div className="metrics">
+                <Metric
+                  label="Reorder point"
+                  value={num(rec.reorder_point, 1)}
+                  sub={`${num(rec.lead_time_demand, 1)} lead demand + ${num(rec.safety_stock, 1)} safety`}
+                />
+                <Metric
+                  label="Order-up-to level"
+                  value={num(rec.order_up_to_level, 1)}
+                  sub={`coverage ${leadTime + reviewPeriod} days`}
+                />
+                <Metric
                   label="Suggested replenishment"
                   value={num(rec.suggested_replenishment, 1)}
                   sub="order-up-to minus position"
                 />
-                <Kpi
+                <Metric
                   label="Days of cover"
-                  value={rec.expected_days_of_cover !== null ? num(rec.expected_days_of_cover, 1) : "—"}
+                  value={
+                    rec.expected_days_of_cover !== null
+                      ? num(rec.expected_days_of_cover, 1)
+                      : "—"
+                  }
                   sub={`forecast ${num(rec.forecast_demand_horizon, 0)} units / ${horizon}d`}
                 />
               </div>
@@ -189,18 +226,19 @@ export default function Inventory() {
               </ul>
             </>
           ) : (
-            <div className="muted small">
-              Configure inputs and request a recommendation. Nothing here reflects a real
-              warehouse — M5 contains no inventory data.
-            </div>
+            <EmptyState>
+              Configure inputs and request a recommendation. Nothing here reflects a
+              real warehouse — M5 contains no inventory data, so stock levels are
+              always inputs you provide.
+            </EmptyState>
           )}
-        </div>
+        </Panel>
       </div>
 
       <Note honesty>
         Safety stock uses the normal approximation (z × σ × √lead time). Intermittent
-        demand series may violate the normality assumption — treat results as a starting
-        point for planner judgment, not an automatic order.
+        demand series may violate the normality assumption — treat results as a
+        starting point for planner judgment, not an automatic order.
       </Note>
     </>
   );

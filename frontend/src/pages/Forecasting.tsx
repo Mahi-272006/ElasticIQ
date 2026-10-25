@@ -12,7 +12,25 @@ import {
 } from "recharts";
 import { api } from "../api/client";
 import type { ForecastResponse } from "../api/types";
-import { ErrorBox, Note, PageHead, Spinner, num, useAsync } from "../components/ui";
+import { Icon } from "../components/Icon";
+import {
+  CHART_COLORS,
+  fmtDateFull,
+  fmtDateShort,
+  gridProps,
+  tooltipProps,
+  xAxisProps,
+  yAxisProps,
+} from "../components/charts";
+import {
+  ErrorBox,
+  Note,
+  PageHead,
+  Panel,
+  Spinner,
+  num,
+  useAsync,
+} from "../components/ui";
 
 interface ChartRow {
   date: string;
@@ -68,18 +86,23 @@ export default function Forecasting() {
   return (
     <>
       <PageHead
-        title="Demand forecasting"
+        title="Forecasting"
         subtitle="Recursive multi-horizon forecasts from the trained HGB Poisson model. Predictions feed back into the feature history; future prices are assumed to equal the last observed price."
       />
 
-      <div className="controls">
-        <label className="field" style={{ minWidth: 260 }}>
+      <div className="toolbar">
+        <label className="field" style={{ minWidth: 250 }}>
           Search series (id or item)
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="FOODS_3_090_CA_1"
-          />
+          <span className="input-with-icon">
+            <span className="input-icon">
+              <Icon name="search" />
+            </span>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="FOODS_3_090_CA_1"
+            />
+          </span>
         </label>
         <label className="field">
           Series
@@ -113,71 +136,90 @@ export default function Forecasting() {
       {detail.loading ? <Spinner label="Loading history…" /> : null}
 
       {chart.length > 0 ? (
-        <div className="card">
-          <h3>
-            {seriesId} — last 28 observed days{result ? ` + ${horizon}-day forecast` : ""}
-          </h3>
-          <div className="chart-box">
+        <Panel
+          title={seriesId}
+          sub={
+            result
+              ? `Last 28 observed days · ${horizon}-day forecast from ${result.origin_date}`
+              : "Last 28 observed days · run a forecast to project demand"
+          }
+          tag={result ? "forecast" : "observed"}
+        >
+          <div
+            className="chart-box"
+            role="img"
+            aria-label={`Observed and predicted daily units for ${seriesId}`}
+          >
             <ResponsiveContainer>
-              <LineChart data={chart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2a3345" />
+              <LineChart data={chart} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                <CartesianGrid {...gridProps} />
                 <XAxis
                   dataKey="date"
-                  stroke="#8b98ad"
-                  fontSize={11}
+                  {...xAxisProps}
                   minTickGap={42}
-                  tickFormatter={(v: string) => v.slice(5)}
+                  tickFormatter={(v: string) => fmtDateShort(v)}
                 />
-                <YAxis stroke="#8b98ad" fontSize={11} />
+                <YAxis {...yAxisProps} />
                 <Tooltip
-                  contentStyle={{ background: "#1a2130", border: "1px solid #2a3345" }}
-                  formatter={(value: any, name: any) => [num(value, 2), name]}
+                  {...tooltipProps}
+                  labelFormatter={(label) => fmtDateFull(String(label))}
+                  formatter={(value: unknown, name: unknown) => [
+                    num(Number(value), 2),
+                    String(name),
+                  ]}
                 />
                 <Legend />
                 {result ? (
                   <ReferenceLine
                     x={result.origin_date}
-                    stroke="#d9a441"
-                    label={{ value: "forecast origin", fill: "#d9a441", fontSize: 11 }}
+                    stroke={CHART_COLORS.amber}
+                    strokeDasharray="4 3"
+                    label={{
+                      value: "forecast origin",
+                      fill: CHART_COLORS.amber,
+                      fontSize: 11,
+                      position: "insideTopRight",
+                    }}
                   />
                 ) : null}
                 <Line
                   type="monotone"
                   dataKey="history"
-                  stroke="#8b98ad"
+                  stroke={CHART_COLORS.slate}
                   dot={false}
                   strokeWidth={1.5}
                   name="Observed units"
                   connectNulls={false}
+                  isAnimationActive={false}
                 />
                 <Line
                   type="monotone"
                   dataKey="forecast"
-                  stroke="#4f8cff"
+                  stroke={CHART_COLORS.primary}
                   dot={false}
                   strokeWidth={2}
                   name="Predicted units"
                   connectNulls={false}
+                  isAnimationActive={false}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Panel>
       ) : null}
 
       {result ? (
-        <div className="grid cols-2" style={{ marginTop: 14 }}>
-          <div className="card">
-            <h3>Run details</h3>
-            <table>
+        <div className="grid cols-2 mt-3">
+          <Panel title="Run details">
+            <table className="kv">
               <tbody>
                 <tr>
                   <td>Forecast id</td>
-                  <td>{result.forecast_id ?? "(not persisted)"}</td>
+                  <td className="mono wrap">{result.forecast_id ?? "(not persisted)"}</td>
                 </tr>
                 <tr>
                   <td>Model version</td>
-                  <td>{result.model_version}</td>
+                  <td className="mono">{result.model_version}</td>
                 </tr>
                 <tr>
                   <td>Origin</td>
@@ -187,7 +229,7 @@ export default function Forecasting() {
                 </tr>
                 <tr>
                   <td>Predicted total</td>
-                  <td>
+                  <td className="tnum">
                     {num(
                       result.points.reduce((sum, p) => sum + p.predicted_units, 0),
                       1,
@@ -207,54 +249,54 @@ export default function Forecasting() {
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div className="card">
-            <h3>Assumptions (always shown)</h3>
+          </Panel>
+          <Panel title="Assumptions" tag="always shown">
             <ul className="assumptions">
               {result.assumptions.map((a) => (
                 <li key={a}>{a}</li>
               ))}
             </ul>
-          </div>
+          </Panel>
         </div>
       ) : null}
 
-      <div className="card" style={{ marginTop: 14 }}>
-        <h3>Recent stored runs</h3>
+      <Panel className="mt-3" title="Recent stored runs">
         {runs.loading ? <Spinner /> : null}
         {runs.error ? <ErrorBox message={runs.error} /> : null}
         {runs.data && runs.data.items.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Run id</th>
-                <th>Series</th>
-                <th>Horizon</th>
-                <th>Model</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {runs.data.items.map((run) => (
-                <tr key={run.forecast_id}>
-                  <td>{run.forecast_id.slice(0, 10)}…</td>
-                  <td>{run.series_id}</td>
-                  <td>{run.horizon_days}d</td>
-                  <td>{run.model_version}</td>
-                  <td>{run.created_at.replace("T", " ").slice(0, 16)}</td>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Run id</th>
+                  <th>Series</th>
+                  <th className="num">Horizon</th>
+                  <th>Model</th>
+                  <th>Created</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {runs.data.items.map((run) => (
+                  <tr key={run.forecast_id}>
+                    <td className="mono">{run.forecast_id.slice(0, 10)}…</td>
+                    <td className="mono">{run.series_id}</td>
+                    <td className="num">{run.horizon_days}d</td>
+                    <td className="mono">{run.model_version}</td>
+                    <td className="nowrap">{run.created_at.replace("T", " ").slice(0, 16)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <div className="muted small">No runs yet — run a forecast above.</div>
+          <div className="empty">No runs yet — run a forecast above.</div>
         )}
-      </div>
+      </Panel>
 
       <Note honesty>
-        Forecast accuracy figures on the Models page are holdout measurements, not a
-        guarantee for these future days. The M5 holdout WAPE is high (~89%) because most
-        series are intermittent — plan accordingly.
+        Accuracy figures on the Models page are holdout measurements, not a guarantee
+        for these future days. WAPE is high on this dataset because most series are
+        intermittent — treat single-day predictions as a planning input, not a promise.
       </Note>
     </>
   );

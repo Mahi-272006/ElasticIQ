@@ -10,7 +10,24 @@ import {
 } from "recharts";
 import { api } from "../api/client";
 import type { ProductDetail } from "../api/types";
-import { ErrorBox, Note, PageHead, Spinner, num, useAsync } from "../components/ui";
+import { Icon } from "../components/Icon";
+import {
+  CHART_COLORS,
+  fmtDateShort,
+  gridProps,
+  tooltipProps,
+  xAxisProps,
+  yAxisProps,
+} from "../components/charts";
+import {
+  ErrorBox,
+  Note,
+  PageHead,
+  Panel,
+  Spinner,
+  num,
+  useAsync,
+} from "../components/ui";
 
 const PAGE = 25;
 
@@ -42,39 +59,47 @@ export default function Explorer() {
   return (
     <>
       <PageHead
-        title="Products & stores"
+        title="Explorer"
         subtitle="The full 30,490-series M5 catalog (one series = one item in one store), with observed history and price statistics."
       />
 
-      <div className="controls">
-        <button
-          className={tab === "products" ? "" : "ghost"}
-          onClick={() => setTab("products")}
-        >
-          Products
-        </button>
-        <button
-          className={tab === "stores" ? "" : "ghost"}
-          onClick={() => setTab("stores")}
-        >
-          Stores
-        </button>
-      </div>
+      <div className="toolbar">
+        <div className="tabs" role="tablist" aria-label="Catalog view">
+          <button
+            role="tab"
+            aria-selected={tab === "products"}
+            className={tab === "products" ? "tab active" : "tab"}
+            onClick={() => setTab("products")}
+          >
+            Products
+          </button>
+          <button
+            role="tab"
+            aria-selected={tab === "stores"}
+            className={tab === "stores" ? "tab active" : "tab"}
+            onClick={() => setTab("stores")}
+          >
+            Stores
+          </button>
+        </div>
 
-      {tab === "products" ? (
-        <>
-          <div className="controls">
-            <label className="field">
+        {tab === "products" ? (
+          <>
+            <label className="field" style={{ minWidth: 210 }}>
               Search
-              <input
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setOffset(0);
-                }}
-                placeholder="FOODS_3_090"
-                style={{ minWidth: 220 }}
-              />
+              <span className="input-with-icon">
+                <span className="input-icon">
+                  <Icon name="search" />
+                </span>
+                <input
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setOffset(0);
+                  }}
+                  placeholder="FOODS_3_090"
+                />
+              </span>
             </label>
             <label className="field">
               Category
@@ -108,168 +133,201 @@ export default function Explorer() {
                 ))}
               </select>
             </label>
-          </div>
+          </>
+        ) : null}
+      </div>
 
-          {products.loading ? <Spinner /> : null}
+      {tab === "products" ? (
+        <>
+          {products.loading ? <Spinner label="Loading catalog…" /> : null}
           {products.error ? <ErrorBox message={products.error} /> : null}
 
           {products.data ? (
-            <div className="card">
+            <Panel>
+              {products.data.items.length === 0 ? (
+                <div className="empty">No series match these filters.</div>
+              ) : (
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Series</th>
+                        <th>Dept</th>
+                        <th>Category</th>
+                        <th>Store</th>
+                        <th>State</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.data.items.map((p) => (
+                        <tr
+                          key={p.series_id}
+                          className="row-click"
+                          tabIndex={0}
+                          onClick={() => setSelected(p.series_id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") setSelected(p.series_id);
+                          }}
+                        >
+                          <td className="mono">{p.series_id}</td>
+                          <td>{p.dept_id}</td>
+                          <td>{p.cat_id}</td>
+                          <td>{p.store_id}</td>
+                          <td>{p.state_id}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <div className="pager">
+                <button
+                  className="icon-btn"
+                  aria-label="Previous page"
+                  disabled={offset === 0}
+                  onClick={() => setOffset(Math.max(0, offset - PAGE))}
+                >
+                  <Icon name="chevron-left" />
+                </button>
+                <button
+                  className="icon-btn"
+                  aria-label="Next page"
+                  disabled={offset + PAGE >= products.data.total}
+                  onClick={() => setOffset(offset + PAGE)}
+                >
+                  <Icon name="chevron-right" />
+                </button>
+                <span className="tnum">
+                  {products.data.total === 0
+                    ? "0 results"
+                    : `${offset + 1}–${Math.min(offset + PAGE, products.data.total)} of ${num(products.data.total, 0)}`}
+                </span>
+              </div>
+            </Panel>
+          ) : null}
+        </>
+      ) : (
+        <Panel>
+          {stores.loading ? <Spinner label="Loading stores…" /> : null}
+          {stores.error ? <ErrorBox message={stores.error} /> : null}
+          {stores.data ? (
+            <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Series</th>
-                    <th>Dept</th>
-                    <th>Category</th>
                     <th>Store</th>
                     <th>State</th>
+                    <th className="num">Total units</th>
+                    <th className="num">Catalog share</th>
+                    <th>Coverage</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.data.items.map((p) => (
-                    <tr
-                      key={p.series_id}
-                      className="row-click"
-                      onClick={() => setSelected(p.series_id)}
-                    >
-                      <td>{p.series_id}</td>
-                      <td>{p.dept_id}</td>
-                      <td>{p.cat_id}</td>
-                      <td>{p.store_id}</td>
-                      <td>{p.state_id}</td>
+                  {stores.data.items.map((s) => (
+                    <tr key={s.store_id}>
+                      <td className="mono">{s.store_id}</td>
+                      <td>{s.state_id}</td>
+                      <td className="num">{num(s.total_units, 0)}</td>
+                      <td className="num">{num(s.share_percent, 2)}%</td>
+                      <td className="nowrap">
+                        {s.first_date} → {s.last_date}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <div className="pager">
-                <button
-                  className="ghost"
-                  disabled={offset === 0}
-                  onClick={() => setOffset(Math.max(0, offset - PAGE))}
-                >
-                  ← Prev
-                </button>
-                <span>
-                  {offset + 1}–{Math.min(offset + PAGE, products.data.total)} of{" "}
-                  {num(products.data.total, 0)}
-                </span>
-                <button
-                  className="ghost"
-                  disabled={offset + PAGE >= products.data.total}
-                  onClick={() => setOffset(offset + PAGE)}
-                >
-                  Next →
-                </button>
-              </div>
             </div>
           ) : null}
-        </>
-      ) : (
-        <div className="card">
-          {stores.loading ? <Spinner /> : null}
-          {stores.error ? <ErrorBox message={stores.error} /> : null}
-          {stores.data ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>Store</th>
-                  <th>State</th>
-                  <th>Total units</th>
-                  <th>Catalog share</th>
-                  <th>Coverage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stores.data.items.map((s) => (
-                  <tr key={s.store_id}>
-                    <td>{s.store_id}</td>
-                    <td>{s.state_id}</td>
-                    <td>{num(s.total_units, 0)}</td>
-                    <td>{num(s.share_percent, 2)}%</td>
-                    <td>
-                      {s.first_date} → {s.last_date}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </div>
+        </Panel>
       )}
 
       {selected ? (
-        <div className="card" style={{ marginTop: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <h3 style={{ margin: 0 }}>Series detail — {selected}</h3>
-            <button className="ghost" onClick={() => setSelected(null)}>
-              Close
+        <Panel
+          className="mt-3"
+          title={`Series detail — ${selected}`}
+          actions={
+            <button
+              className="icon-btn"
+              aria-label="Close series detail"
+              onClick={() => setSelected(null)}
+            >
+              <Icon name="close" />
             </button>
-          </div>
-          {detail.loading ? <Spinner /> : null}
+          }
+        >
+          {detail.loading ? <Spinner label="Loading series…" /> : null}
           {detail.error ? <ErrorBox message={detail.error} /> : null}
           {detail.data ? (
-            <div className="grid cols-2" style={{ marginTop: 12 }}>
+            <div className="grid cols-2">
               <div>
-                <div className="chart-box short">
+                <div
+                  className="chart-box short"
+                  role="img"
+                  aria-label={`Observed units for ${selected}`}
+                >
                   <ResponsiveContainer>
-                    <LineChart data={detail.data.history}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#2a3345" />
+                    <LineChart data={detail.data.history} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                      <CartesianGrid {...gridProps} />
                       <XAxis
                         dataKey="date"
-                        stroke="#8b98ad"
-                        fontSize={10}
+                        {...xAxisProps}
                         minTickGap={40}
-                        tickFormatter={(v: string) => v.slice(5)}
+                        tickFormatter={(v: string) => fmtDateShort(v)}
                       />
-                      <YAxis stroke="#8b98ad" fontSize={11} />
+                      <YAxis {...yAxisProps} />
                       <Tooltip
-                        contentStyle={{ background: "#1a2130", border: "1px solid #2a3345" }}
-                        formatter={(value: any) => [num(value, 0), "units"]}
+                        {...tooltipProps}
+                        formatter={(value: unknown) => [num(Number(value), 0), "Units"]}
                       />
                       <Line
                         type="monotone"
                         dataKey="units"
-                        stroke="#4f8cff"
+                        stroke={CHART_COLORS.primary}
                         dot={false}
                         strokeWidth={1.5}
+                        isAnimationActive={false}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="small muted">
-                  Observed units, last {detail.data.history.length} days. Zero-demand
-                  share:{" "}
+                <div className="hint">
+                  Observed units, last {detail.data.history.length} days ·
+                  zero-demand share{" "}
                   {detail.data.zero_demand_share !== null
                     ? `${num(detail.data.zero_demand_share * 100, 1)}%`
                     : "—"}
                 </div>
               </div>
-              <table>
-                <tbody>
-                  {detail.data.price_stats
-                    ? Object.entries(detail.data.price_stats)
-                        .filter(([key]) => !["store_id", "item_id"].includes(key))
-                        .map(([key, value]) => (
-                          <tr key={key}>
-                            <td>{key.replaceAll("_", " ")}</td>
-                            <td>{typeof value === "number" ? num(value, 2) : String(value)}</td>
+              <div className="table-wrap">
+                <table>
+                  <tbody>
+                    {detail.data.price_stats
+                      ? Object.entries(detail.data.price_stats)
+                          .filter(([key]) => !["store_id", "item_id"].includes(key))
+                          .map(([key, value]) => (
+                            <tr key={key}>
+                              <td>{key.replaceAll("_", " ")}</td>
+                              <td className="num">
+                                {typeof value === "number" ? num(value, 2) : String(value)}
+                              </td>
+                            </tr>
+                          ))
+                      : (
+                          <tr>
+                            <td className="muted">No price statistics</td>
                           </tr>
-                        ))
-                    : (
-                        <tr>
-                          <td className="muted">No price statistics</td>
-                        </tr>
-                      )}
-                </tbody>
-              </table>
+                        )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : null}
-        </div>
+        </Panel>
       ) : null}
 
       <Note>
-        History shown here comes from the processed 80-day tail used for inference; the
-        aggregates on other pages cover the full 1,913-day history for all series.
+        History shown here comes from the processed 80-day tail used for inference;
+        the aggregates on other pages cover the full 1,913-day history for all series.
       </Note>
     </>
   );

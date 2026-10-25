@@ -26,8 +26,15 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Base URL for API calls. Empty by default = same-origin, so the Vite dev
+ * proxy (/api, /health -> FastAPI) keeps working exactly as before. Set
+ * `VITE_API_BASE_URL` at build time when the API lives on another origin.
+ */
+const BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, {
+  const response = await fetch(`${BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
     ...init,
   });
