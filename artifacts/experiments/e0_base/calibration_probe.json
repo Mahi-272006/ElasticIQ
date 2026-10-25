@@ -1,0 +1,7 @@
+{
+  "fit_days": "d_1858..d_1871",
+  "eval_days": "d_1872..d_1885",
+  "best_shrink": 10.0,
+  "best_eval_wape": 79.7734,
+  "global_scale": 0.687114250847019
+}

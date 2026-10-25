@@ -1,0 +1,148 @@
+{
+  "model": {
+    "overall": {
+      "wape_percent": 82.5704,
+      "mae_units": 0.8437,
+      "rows": 56000
+    },
+    "by_horizon": {
+      "7": {
+        "wape_percent": 80.2044,
+        "mae_units": 0.8578,
+        "rows": 14000
+      },
+      "14": {
+        "wape_percent": 80.9771,
+        "mae_units": 0.8532,
+        "rows": 28000
+      },
+      "28": {
+        "wape_percent": 82.5704,
+        "mae_units": 0.8437,
+        "rows": 56000
+      }
+    },
+    "by_category": {
+      "FOODS": {
+        "wape_percent": 84.74,
+        "mae_units": 1.0867,
+        "rows": 10864
+      },
+      "HOBBIES": {
+        "wape_percent": 89.1149,
+        "mae_units": 0.8479,
+        "rows": 15820
+      },
+      "HOUSEHOLD": {
+        "wape_percent": 78.0105,
+        "mae_units": 0.7513,
+        "rows": 29316
+      }
+    }
+  },
+  "baselines": {
+    "mean_baseline": {
+      "overall": {
+        "wape_percent": 86.4866,
+        "mae_units": 0.8837
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 82.9319,
+          "mae_units": 0.887
+        },
+        "14": {
+          "wape_percent": 84.1681,
+          "mae_units": 0.8868
+        },
+        "28": {
+          "wape_percent": 86.4866,
+          "mae_units": 0.8837
+        }
+      }
+    },
+    "last_day_naive": {
+      "overall": {
+        "wape_percent": 102.0867,
+        "mae_units": 1.0431
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 97.6892,
+          "mae_units": 1.0448
+        },
+        "14": {
+          "wape_percent": 99.7831,
+          "mae_units": 1.0514
+        },
+        "28": {
+          "wape_percent": 102.0867,
+          "mae_units": 1.0431
+        }
+      }
+    },
+    "weekly_seasonal_naive": {
+      "overall": {
+        "wape_percent": 103.8868,
+        "mae_units": 1.0615
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 99.2921,
+          "mae_units": 1.0619
+        },
+        "14": {
+          "wape_percent": 101.0576,
+          "mae_units": 1.0648
+        },
+        "28": {
+          "wape_percent": 103.8868,
+          "mae_units": 1.0615
+        }
+      }
+    }
+  },
+  "comparison_note": "All models are evaluated on the same series, the same validation dates, and with the same recursive 28-day protocol.",
+  "raw_model": {
+    "overall": {
+      "wape_percent": 88.9381,
+      "mae_units": 0.9087,
+      "rows": 56000
+    },
+    "by_horizon": {
+      "7": {
+        "wape_percent": 83.1765,
+        "mae_units": 0.8896,
+        "rows": 14000
+      },
+      "14": {
+        "wape_percent": 86.1625,
+        "mae_units": 0.9078,
+        "rows": 28000
+      },
+      "28": {
+        "wape_percent": 88.9381,
+        "mae_units": 0.9087,
+        "rows": 56000
+      }
+    },
+    "by_category": {
+      "FOODS": {
+        "wape_percent": 92.7425,
+        "mae_units": 1.1893,
+        "rows": 10864
+      },
+      "HOBBIES": {
+        "wape_percent": 97.4016,
+        "mae_units": 0.9268,
+        "rows": 15820
+      },
+      "HOUSEHOLD": {
+        "wape_percent": 82.5486,
+        "mae_units": 0.795,
+        "rows": 29316
+      }
+    }
+  },
+  "postprocess_note": "'model' is the final system (recent level x model shape x per-series scale fitted leak-free on the preceding window); 'raw_model' is the unprocessed gradient-boosting output."
+}

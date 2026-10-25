@@ -1,0 +1,19 @@
+{
+  "series_train_mean": 93.4874742270646,
+  "series_x_weekday_shrunk": 91.98333421467713,
+  "series_x_weekday_raw": 91.9671485356942,
+  "series_mean_x_global_weekday_shape": 92.20798093878562,
+  "plus_snap": 92.04157221581207,
+  "series_x_weekday_x_snap": 92.08282340504509,
+  "model_hgb_poisson_v1": 88.82770657496351,
+  "leaky_best_global_scale": {
+    "s": 0.661,
+    "wape": 83.325
+  },
+  "leaky_best_power": {
+    "gamma": 0.9099999999999999,
+    "wape": 87.9372
+  },
+  "leaky_per_series_scale_wape": 72.5379,
+  "poisson_noise_floor_percent": 60.2343
+}

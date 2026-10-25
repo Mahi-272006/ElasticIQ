@@ -1,0 +1,125 @@
+{
+  "config": {
+    "tag": "e2_extended",
+    "eval_window": "dev",
+    "train_days": "d_1..d_1857",
+    "eval_days": "d_1858..d_1885",
+    "loss": "poisson",
+    "learning_rate": 0.08,
+    "max_iter_requested": 100,
+    "max_iter_fitted": 100,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 20,
+    "early_stopping": true,
+    "features": "extended",
+    "feature_count": 29,
+    "random_seed": 42,
+    "series": 2000,
+    "train_rows": 2960619,
+    "eval_rows": 56000
+  },
+  "model": {
+    "overall": {
+      "wape_percent": 88.5849,
+      "mae_units": 0.9022,
+      "rows": 56000
+    },
+    "by_horizon": {
+      "7": {
+        "wape_percent": 84.641,
+        "mae_units": 0.9054,
+        "rows": 14000
+      },
+      "14": {
+        "wape_percent": 87.0479,
+        "mae_units": 0.9068,
+        "rows": 28000
+      },
+      "28": {
+        "wape_percent": 88.5849,
+        "mae_units": 0.9022,
+        "rows": 56000
+      }
+    },
+    "by_category": {
+      "FOODS": {
+        "wape_percent": 84.9623,
+        "mae_units": 1.1936,
+        "rows": 10864
+      },
+      "HOBBIES": {
+        "wape_percent": 106.4239,
+        "mae_units": 0.9514,
+        "rows": 15820
+      },
+      "HOUSEHOLD": {
+        "wape_percent": 81.4551,
+        "mae_units": 0.7677,
+        "rows": 29316
+      }
+    }
+  },
+  "baselines": {
+    "mean_baseline": {
+      "overall": {
+        "wape_percent": 85.6236,
+        "mae_units": 0.872
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 82.5838,
+          "mae_units": 0.8834
+        },
+        "14": {
+          "wape_percent": 84.2041,
+          "mae_units": 0.8772
+        },
+        "28": {
+          "wape_percent": 85.6236,
+          "mae_units": 0.872
+        }
+      }
+    },
+    "last_day_naive": {
+      "overall": {
+        "wape_percent": 121.8119,
+        "mae_units": 1.2406
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 114.0491,
+          "mae_units": 1.22
+        },
+        "14": {
+          "wape_percent": 118.0815,
+          "mae_units": 1.2301
+        },
+        "28": {
+          "wape_percent": 121.8119,
+          "mae_units": 1.2406
+        }
+      }
+    },
+    "weekly_seasonal_naive": {
+      "overall": {
+        "wape_percent": 99.5862,
+        "mae_units": 1.0142
+      },
+      "by_horizon": {
+        "7": {
+          "wape_percent": 93.5831,
+          "mae_units": 1.0011
+        },
+        "14": {
+          "wape_percent": 97.0378,
+          "mae_units": 1.0109
+        },
+        "28": {
+          "wape_percent": 99.5862,
+          "mae_units": 1.0142
+        }
+      }
+    }
+  },
+  "elapsed_seconds": 119.0
+}

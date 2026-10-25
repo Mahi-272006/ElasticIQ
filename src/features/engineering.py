@@ -44,6 +44,53 @@ CATEGORICAL_FEATURES = ["cat_id", "dept_id", "store_id", "state_id"]
 
 FEATURE_COLUMNS = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
+# ---------------------------------------------------------------------------
+# Extended feature set (experiments)
+#
+# Diagnosis (artifacts/reports/diagnosis*.json) showed the dominant fixable
+# error is per-series LEVEL miscalibration: the model over-predicts sparse
+# series (0.60 units on days that are actually zero) and under-predicts
+# dense ones, because it has no feature describing a series' own demand
+# pattern.  Everything below is computed from *past* days only (shift(1)),
+# and every window is <= 56 days so it is fully computable inside the
+# 60-day inference tail (train/serve parity).
+# ---------------------------------------------------------------------------
+EXTENDED_NUMERIC_FEATURES = [
+    "demand_share_56",       # fraction of past-56 days with sales (intermittency)
+    "cv2_28",                # squared coeff. of variation (spikiness)
+    "days_since_last_sale",  # 0..56, capped
+    "level_ratio_7_56",      # recent level vs stable level (momentum)
+    "sell_price_ratio_28",   # price vs the series' own 28-day average price
+]
+
+# wday/month move from numeric to categorical: weekdays are not ordered
+# (Saturday and Friday are neighbours on the calendar but 1 and 7 in the
+# feature), so trees should be free to split them as discrete levels.
+EXTENDED_CATEGORICAL_FEATURES = ["wday", "month"]
+
+
+def feature_columns(extended: bool = False) -> list[str]:
+    """Feature list for a training run. Default keeps the shipped behaviour."""
+
+    if not extended:
+        return list(FEATURE_COLUMNS)
+
+    numeric = [
+        column
+        for column in NUMERIC_FEATURES
+        if column not in ("wday", "month")
+    ] + EXTENDED_NUMERIC_FEATURES
+    return numeric + CATEGORICAL_FEATURES + EXTENDED_CATEGORICAL_FEATURES
+
+
+def categorical_columns(extended: bool = False) -> list[str]:
+    """Categorical columns matching :func:`feature_columns`."""
+
+    if not extended:
+        return list(CATEGORICAL_FEATURES)
+    return CATEGORICAL_FEATURES + EXTENDED_CATEGORICAL_FEATURES
+
+
 # Recursive inference keeps this many recent days per series so that every
 # rolling window (max 56 days) is fully covered inside the slice.
 REQUIRED_HISTORY_DAYS = 60
@@ -117,6 +164,65 @@ def add_categorical_codes(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
+def add_extended_features(frame: pd.DataFrame) -> pd.DataFrame:
+    """Add per-series demand-pattern features (all computed from past days).
+
+    These describe *what kind of series this is* (intermittent vs steady,
+    spiky vs smooth, momentum, own price level), which is what the model was
+    missing when it over-predicted sparse series.  Every window is <= 56
+    days so inference can reproduce them inside the 60-day history tail.
+    """
+
+    ids = frame["id"]
+    shifted = frame.groupby("id", sort=False)["units"].shift(1)
+
+    # Intermittency: how often did this series sell at all (past 56 days)?
+    # Days with no observed value (the first row of a series) are excluded
+    # from the denominator instead of counting as "no sale".
+    positive = shifted.gt(0).astype(np.float32)   # NaN -> False
+    observed = shifted.notna().astype(np.float32)
+    sold = positive.groupby(ids, sort=False).rolling(56, min_periods=1).sum().to_numpy()
+    seen = observed.groupby(ids, sort=False).rolling(56, min_periods=1).sum().to_numpy()
+    with np.errstate(invalid="ignore", divide="ignore"):
+        frame["demand_share_56"] = np.where(seen > 0, sold / seen, 0.0).astype(
+            np.float32
+        )
+
+    # Spikiness: squared coefficient of variation over the past 28 days.
+    mean28 = frame["rolling_mean_28"]
+    std28 = frame["rolling_std_28"]
+    frame["cv2_28"] = (std28 * std28) / (mean28 * mean28 + 1e-6)
+
+    # Recency: days since the last actual sale (56 = "long time / never").
+    # ``shifted[r]`` holds day r-1's sales, so a sale flagged at row r
+    # actually happened at position r - 1.
+    position = pd.Series(np.arange(len(frame)), index=frame.index, dtype=np.float64)
+    sale_pos = (position - 1.0).where(shifted.gt(0)).groupby(ids, sort=False).ffill()
+    frame["days_since_last_sale"] = (
+        (position - sale_pos).clip(0, 56).fillna(56).astype(np.float32)
+    )
+
+    # Momentum: recent 7-day level versus the stable 56-day level.
+    frame["level_ratio_7_56"] = (
+        (frame["rolling_mean_7"] + 0.5) / (frame["rolling_mean_56"] + 0.5)
+    ).astype(np.float32)
+
+    # Price position: today's price versus this series' own 28-day average.
+    price_shifted = frame.groupby("id", sort=False)["sell_price"].shift(1)
+    price_roll = (
+        price_shifted.groupby(ids, sort=False)
+        .rolling(28, min_periods=1)
+        .mean()
+        .to_numpy()
+    )
+    with np.errstate(invalid="ignore", divide="ignore"):
+        frame["sell_price_ratio_28"] = (
+            frame["sell_price"] / (price_roll + 1e-6)
+        ).astype(np.float32)
+
+    return frame
+
+
 def build_features(panel: pd.DataFrame) -> pd.DataFrame:
     """Add all model features to a long panel (id, day_idx sorted).
 
@@ -130,9 +236,10 @@ def build_features(panel: pd.DataFrame) -> pd.DataFrame:
     frame = add_rolling_features(frame)
     frame = add_price_features(frame)
     frame = add_transformed_features(frame)
+    frame = add_extended_features(frame)
     frame = add_categorical_codes(frame)
 
-    for column in NUMERIC_FEATURES:
+    for column in NUMERIC_FEATURES + EXTENDED_NUMERIC_FEATURES:
         if column not in ("wday", "month", "is_event", "snap"):
             frame[column] = frame[column].astype(np.float32)
 

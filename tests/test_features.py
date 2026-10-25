@@ -5,9 +5,13 @@ import pandas as pd
 import pytest
 
 from src.features.engineering import (
+    EXTENDED_CATEGORICAL_FEATURES,
+    EXTENDED_NUMERIC_FEATURES,
     FEATURE_COLUMNS,
     build_features,
     build_inference_rows,
+    categorical_columns,
+    feature_columns,
 )
 
 
@@ -106,6 +110,122 @@ def test_categoricals_are_category_dtype():
     features = build_features(make_panel())
     assert str(features["cat_id"].dtype) == "category"
     assert str(features["store_id"].dtype) == "category"
+
+
+def test_feature_column_selection_is_stable():
+    """Base selection must not change (it is what the shipped model uses)."""
+
+    assert feature_columns(extended=False) == FEATURE_COLUMNS
+    assert categorical_columns(extended=False) == ["cat_id", "dept_id",
+                                                   "store_id", "state_id"]
+
+    extended = feature_columns(extended=True)
+    # every base numeric feature except the two moved to categorical
+    for column in FEATURE_COLUMNS:
+        if column in ("wday", "month"):
+            assert column not in [c for c in extended
+                                  if c not in categorical_columns(True)]
+            assert column in categorical_columns(True)
+        else:
+            assert column in extended
+    for column in EXTENDED_NUMERIC_FEATURES:
+        assert column in extended
+    assert set(categorical_columns(True)) == set(categorical_columns(False)) | set(
+        EXTENDED_CATEGORICAL_FEATURES
+    )
+
+
+def test_extended_features_exist_and_are_numeric():
+    features = build_features(make_panel(n_days=70))
+    for column in EXTENDED_NUMERIC_FEATURES:
+        assert column in features.columns
+        assert np.issubdtype(features[column].dtype, np.number), column
+
+
+def test_no_future_information_leaks_into_extended_features():
+    """Mutating future sales must not change earlier extended features."""
+
+    panel = make_panel(n_days=70, series={"s1": lambda d: float(d % 5)})
+
+    baseline_features = build_features(panel)
+    mutated = panel.copy()
+    mutated.loc[mutated["day_idx"] > 40, "units"] = 999.0
+    mutated_features = build_features(mutated)
+
+    early_base = baseline_features[baseline_features["day_idx"] <= 40]
+    early_mutated = mutated_features[mutated_features["day_idx"] <= 40]
+
+    pd.testing.assert_frame_equal(
+        early_base[EXTENDED_NUMERIC_FEATURES].reset_index(drop=True),
+        early_mutated[EXTENDED_NUMERIC_FEATURES].reset_index(drop=True),
+    )
+
+
+def test_intermittency_features_by_hand():
+    """demand_share_56 and days_since_last_sale computed by hand."""
+
+    # days 1..10 sell 1 unit every other day: sell on odd days only
+    panel = make_panel(
+        n_days=40,
+        series={"s1": lambda d: 1.0 if d % 2 == 1 else 0.0},
+    )
+    features = build_features(panel)
+
+    # At day 12 the past 10 days (2..11) are: 0,1,0,1,0,1,0,1,0,1 -> 5 sales
+    # in the full past-10 window; past-56 window is just days 1..11 -> 6 sales
+    # out of 11 observed days (day 1 has no past, shifted -> day 1 excluded).
+    row12 = features[features["day_idx"] == 12].iloc[0]
+    past = panel.loc[(panel["day_idx"] < 12) & (panel["day_idx"] >= 1), "units"]
+    expected_share = float((past > 0).mean())
+    assert row12["demand_share_56"] == pytest.approx(expected_share)
+
+    # last sale before day 12 is day 11 -> 1 day since last sale
+    assert row12["days_since_last_sale"] == 1.0
+
+    # after a long quiet spell the feature saturates at 56
+    quiet = make_panel(n_days=70, series={"q1": lambda d: 0.0})
+    quiet_features = build_features(quiet)
+    last = quiet_features[quiet_features["day_idx"] == 70].iloc[0]
+    assert last["demand_share_56"] == 0.0
+    assert last["days_since_last_sale"] == 56.0
+
+
+def test_cv2_and_level_ratio_by_hand():
+    # constant series: zero dispersion, momentum ratio exactly 1
+    panel = make_panel(n_days=70, series={"s1": lambda d: 4.0})
+    features = build_features(panel)
+    row = features[features["day_idx"] == 40].iloc[0]
+    assert row["cv2_28"] == pytest.approx(0.0, abs=1e-6)
+    assert row["level_ratio_7_56"] == pytest.approx(1.0)
+
+
+def test_extended_features_match_between_full_history_and_inference_tail():
+    """Train/serve parity: the 60-day inference tail must reproduce exactly
+    the same feature values as the full history for the forecast day."""
+
+    series = {
+        "s1": lambda d: float((d * 3) % 7),
+        "s2": lambda d: 0.0 if d % 3 == 0 else 2.0,
+        "s3": lambda d: float(d % 2),
+    }
+    panel = make_panel(n_days=90, series=series)
+
+    full = build_features(panel).set_index(["id", "day_idx"])
+    tail = build_features(panel[panel["day_idx"] > 30]).set_index(
+        ["id", "day_idx"]
+    )
+
+    last_day = 90
+    columns = feature_columns(extended=True)
+    for series_id in series:
+        full_row = full.loc[(series_id, last_day)]
+        tail_row = tail.loc[(series_id, last_day)]
+        for column in columns:
+            left, right = full_row[column], tail_row[column]
+            if isinstance(left, float) and np.isnan(left):
+                assert np.isnan(right), f"{series_id}/{column} NaN mismatch"
+            else:
+                assert left == right, f"{series_id}/{column}: {left} != {right}"
 
 
 def test_build_inference_rows_has_nan_targets_and_features():

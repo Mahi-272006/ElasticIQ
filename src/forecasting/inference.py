@@ -22,6 +22,7 @@ from src.features.engineering import (
     REQUIRED_HISTORY_DAYS,  # single source of truth with training features
     build_features,
 )
+from src.forecasting.postprocess import apply_postprocess
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +118,14 @@ def recursive_forecast(
     Returns
     -------
     DataFrame with columns id, day_idx, d, date, predicted_units.
+
+    If the bundle carries a ``postprocess`` block (see
+    ``src.forecasting.postprocess``), the raw model outputs are converted to
+    final forecasts at the end: ``scale[id] x level[id] x shape[id, day]``.
+    The recursion itself always feeds *raw* predictions back into the
+    history, so training-time and inference-time behaviour stay identical.
+    Bundles without the block (e.g. the original ``hgb_poisson_v1``) are
+    returned untouched.
     """
 
     model = bundle["model"]
@@ -213,7 +222,15 @@ def recursive_forecast(
             )
         )
 
-    return pd.concat(results, ignore_index=True)
+    predictions = pd.concat(results, ignore_index=True)
+
+    postprocess = bundle.get("postprocess")
+    if postprocess:
+        # Applied once, after the loop: recent observed level (from
+        # panel_tail, which ends at the forecast origin) x model shape x
+        # per-series scale fitted on a held-out window at training time.
+        predictions = apply_postprocess(predictions, panel_tail, postprocess)
+    return predictions
 
 
 def load_calendar(processed_dir: Path | None = None) -> pd.DataFrame:
