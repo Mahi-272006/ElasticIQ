@@ -29,17 +29,13 @@ COPY src/ ./src/
 COPY migrations/ ./migrations/
 COPY alembic.ini ./
 COPY artifacts/ ./artifacts/
-
+COPY data/processed/ ./data/processed/
 # Built dashboard from stage 1 (FastAPI serves frontend/dist automatically).
 COPY --from=frontend /app/frontend/dist ./frontend/dist
 
-# Processed data is NOT baked in (240 MB raw CSVs stay outside git/images):
-# mount it at /app/data/processed or run the pipeline inside the container.
-VOLUME ["/app/data/processed"]
-
-EXPOSE 8000
+EXPOSE 10000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"
+  CMD python -c "import os,urllib.request,sys; port=os.getenv('PORT','10000'); sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:'+port+'/health').status==200 else 1)"
 
-CMD ["python", "-m", "uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "python -m uvicorn src.api.app:app --host 0.0.0.0 --port ${PORT:-10000}"]

@@ -1,0 +1,37 @@
+{
+  "generated_at_utc": "2026-10-20T17:38:19.003739+00:00",
+  "sample_selection": "first 2,000 series in sales_train_validation.csv file order (deterministic head selection)",
+  "sample_series": 2000,
+  "total_series": 30490,
+  "calendar_mapping": {
+    "sales_day_columns": 1913,
+    "calendar_rows": 1969,
+    "sales_days_missing_from_calendar": [],
+    "day_columns_consecutive_from_d_1": true,
+    "first_sales_day": "d_1",
+    "last_sales_day": "d_1913",
+    "first_date": "2011-01-29",
+    "last_date": "2016-04-24",
+    "passed": true
+  },
+  "price_report": {
+    "price_rows": 6841121,
+    "store_item_series": 30490,
+    "price_weeks_missing_from_calendar": [],
+    "price_keys_without_product": 0
+  },
+  "panel_rows": 3826000,
+  "history_tail_days": 80,
+  "outputs": {
+    "calendar": "E:\\ElasticIQ\\data\\processed\\calendar.parquet",
+    "products": "E:\\ElasticIQ\\data\\processed\\products.parquet",
+    "aggregates/daily_total_units": "E:\\ElasticIQ\\data\\processed\\aggregates\\daily_total_units.parquet",
+    "aggregates/daily_category_units": "E:\\ElasticIQ\\data\\processed\\aggregates\\daily_category_units.parquet",
+    "aggregates/daily_store_units": "E:\\ElasticIQ\\data\\processed\\aggregates\\daily_store_units.parquet",
+    "sample_panel": "E:\\ElasticIQ\\data\\processed\\sample_panel.parquet",
+    "series_history_tail": "E:\\ElasticIQ\\data\\processed\\series_history_tail.parquet",
+    "price_stats": "E:\\ElasticIQ\\data\\processed\\price_stats.parquet"
+  },
+  "elapsed_seconds": 26.4,
+  "storage_format": "parquet"
+}
