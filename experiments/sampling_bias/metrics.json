@@ -1,0 +1,1167 @@
+{
+  "schema_version": 1,
+  "experiment": {
+    "name": "sampling_bias",
+    "directory": "experiments/sampling_bias",
+    "created_at_utc": "2026-10-25T13:29:51.965350+00:00",
+    "git": {
+      "head": "43ec8ed64a179765fbb5851138d738b530cd695c",
+      "branch": "main",
+      "status_porcelain": "?? experiments/",
+      "changes_outside_experiment_dir": [],
+      "production_tree_untouched": true,
+      "working_tree_clean_before_experiment": false,
+      "last_commit_subject": "frontend changes",
+      "committed_by_experiment": false,
+      "pushed_by_experiment": false
+    },
+    "environment": {
+      "python": "3.14.0",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "pandas": "3.0.6",
+      "numpy": "2.5.4",
+      "scikit_learn": "1.9.1",
+      "random_seed": 42,
+      "cpu_count": 12
+    },
+    "rerun_command": ".venv\\Scripts\\python.exe -m experiments.sampling_bias.run_experiment"
+  },
+  "configuration": {
+    "series_per_arm": 2000,
+    "seed": 42,
+    "strata": "store_id x dept_id",
+    "allocation_rule": "proportional to stratum size with the largest-remainder rule (integer counts sum to exactly 2000); every non-empty stratum gets >= 1",
+    "arm_a_selection": "first 2,000 series in sales_train_validation.csv file order (production head(2000))",
+    "arm_b_selection": "store x department proportional stratified random sample, seed 42",
+    "arm_a_model": "hgb_poisson_v3",
+    "arm_b_model": "arm_b_stratified",
+    "max_iter": 300,
+    "learning_rate": 0.05,
+    "calibrate": true,
+    "level_window": 14,
+    "shrink": 300.0,
+    "origin_day": 1885,
+    "first_validation_day": 1886,
+    "validation_days": "d_1886..d_1913",
+    "horizon_days": 28,
+    "inference_tail_days": 60,
+    "wape_definition": "src/evaluation/metrics.py wape() = sum(|actual - predicted|) / sum(|actual|) * 100 (0.0 when both sums are 0, inf otherwise)",
+    "configuration_identity": {
+      "hyperparameters_arm_a": {
+        "learning_rate": 0.05,
+        "max_iter_requested": 300,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "early_stopping": true,
+        "random_seed": 42
+      },
+      "hyperparameters_arm_b": {
+        "learning_rate": 0.05,
+        "max_iter_requested": 300,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "early_stopping": true,
+        "random_seed": 42
+      },
+      "hyperparameters_identical": true,
+      "features_arm_a": [
+        "lag_1",
+        "lag_3",
+        "lag_7",
+        "lag_14",
+        "lag_28",
+        "rolling_mean_7",
+        "rolling_std_7",
+        "rolling_mean_14",
+        "rolling_mean_28",
+        "rolling_std_28",
+        "rolling_mean_56",
+        "log1p_lag_1",
+        "log1p_rolling_mean_28",
+        "sell_price",
+        "price_rel_change_7",
+        "wday",
+        "month",
+        "is_event",
+        "snap",
+        "day_trend",
+        "cat_id",
+        "dept_id",
+        "store_id",
+        "state_id"
+      ],
+      "features_arm_b": [
+        "lag_1",
+        "lag_3",
+        "lag_7",
+        "lag_14",
+        "lag_28",
+        "rolling_mean_7",
+        "rolling_std_7",
+        "rolling_mean_14",
+        "rolling_mean_28",
+        "rolling_std_28",
+        "rolling_mean_56",
+        "log1p_lag_1",
+        "log1p_rolling_mean_28",
+        "sell_price",
+        "price_rel_change_7",
+        "wday",
+        "month",
+        "is_event",
+        "snap",
+        "day_trend",
+        "cat_id",
+        "dept_id",
+        "store_id",
+        "state_id"
+      ],
+      "features_identical": true,
+      "library_versions_identical": true,
+      "train_days_arm_a": "d_1..d_1885",
+      "train_days_arm_b": "d_1..d_1885",
+      "validation_days_arm_a": "d_1886..d_1913",
+      "validation_days_arm_b": "d_1886..d_1913",
+      "only_intended_difference": "which 2,000 product-store series were selected"
+    }
+  },
+  "verification": {
+    "generated_at_utc": "2026-10-25T13:22:46.575795+00:00",
+    "git": {
+      "head": "43ec8ed64a179765fbb5851138d738b530cd695c",
+      "branch": "main",
+      "status_porcelain": "?? experiments/",
+      "changes_outside_experiment_dir": [],
+      "production_tree_untouched": true,
+      "working_tree_clean_before_experiment": false,
+      "last_commit_subject": "frontend changes",
+      "committed_by_experiment": false,
+      "pushed_by_experiment": false
+    },
+    "environment": {
+      "python": "3.14.0",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "pandas": "3.0.6",
+      "numpy": "2.5.4",
+      "scikit_learn": "1.9.1",
+      "random_seed": 42,
+      "cpu_count": 12
+    },
+    "wape_definition": "src/evaluation/metrics.py wape() = sum(|actual - predicted|) / sum(|actual|) * 100 (0.0 when both sums are 0, inf otherwise)",
+    "arm_a_reproduction": {
+      "model_version": "hgb_poisson_v3",
+      "loaded_from_saved_artifacts": true,
+      "retrained_by_experiment": false,
+      "bundle_path": "artifacts\\models\\hgb_poisson_v3\\bundle.joblib",
+      "predictions_path": "artifacts\\models\\hgb_poisson_v3\\validation_predictions.parquet",
+      "predictions_sha256": "2e0f0e57dde1b3379e79094fbd583d33919869e2960a8de66eb5f8d8ad1c989f",
+      "evaluation_path": "artifacts\\models\\hgb_poisson_v3\\evaluation.json",
+      "saved_wape_percent": 82.5704,
+      "recomputed_wape_percent": 82.5704,
+      "saved_mae_units": 0.8437,
+      "recomputed_mae_units": 0.8437,
+      "matches_saved_metrics": true,
+      "cohort_equals_head_selection": true,
+      "cohort_series": 2000,
+      "rows": 56000,
+      "evaluation_days": "d_1886..d_1913",
+      "evaluation_day_count": 28,
+      "trained_at_utc": "2026-10-25T09:01:55.684931+00:00",
+      "recorded_training_seconds": {
+        "seconds": 280.4,
+        "source": "PROGRESS.md:397 (official run #2; not re-measured)"
+      },
+      "hyperparameters": {
+        "learning_rate": 0.05,
+        "max_iter_requested": 300,
+        "max_leaf_nodes": 63,
+        "min_samples_leaf": 20,
+        "early_stopping": true,
+        "random_seed": 42
+      },
+      "training": {
+        "sample_selection": "first 2,000 series in file order (deterministic head selection from the processed panel)",
+        "series": 2000,
+        "train_rows": 3017710,
+        "train_days": "d_1..d_1885",
+        "validation_days": "d_1886..d_1913"
+      }
+    },
+    "holdout_check": {
+      "verdict": "candidate_final_holdout",
+      "validation_file_last_day": "d_1913",
+      "evaluation_file_last_day": "d_1941",
+      "evaluation_file_extra_days": 28,
+      "extra_day_span": "d_1914..d_1941",
+      "calendar_covers_holdout": true,
+      "calendar_max_day": 1969,
+      "processed_panel_max_day": 1913,
+      "processed_panel_series": 2000,
+      "processed_outputs_stop_before_holdout": true,
+      "repository_references": 17,
+      "schema_or_data_quality_references": 17,
+      "metric_tuning_or_model_selection_references": 0,
+      "metric_level_matches": [],
+      "notes": [
+        "Scanned src/, tests/, root markdown, artifacts JSON/markdown and processed reports for 'sales_train_evaluation' or d_1914..d_1941.",
+        "References inside src/data/{loader,validation,full_validation}.py and tests are schema/data-quality scans only.",
+        "This experiment did NOT score the holdout; it stays unspent until model and sampling decisions are frozen.",
+        "Code/artifact usage is verifiable; ad-hoc human inspection of the raw CSV cannot be excluded, hence the qualified verdict."
+      ]
+    },
+    "calibration_check": {
+      "model_version": "hgb_poisson_v3",
+      "outer_training_days": "d_1..d_1885",
+      "evaluation_days": "d_1886..d_1913",
+      "inner_model_training_days": "d_1..d_1857",
+      "scale_fit_days": "d_1858..d_1885",
+      "checks": {
+        "outer_training_ends_before_evaluation": true,
+        "scale_window_ends_before_evaluation": true,
+        "inner_training_ends_before_scale_window": true,
+        "scale_window_inside_outer_training": true
+      },
+      "calibration_uses_evaluated_observations": false,
+      "leakage_risk_found": false,
+      "action": "documented only - calibration left unchanged by this experiment"
+    },
+    "production_artifacts_modified": false
+  },
+  "coverage": {
+    "summary": {
+      "population": {
+        "state": 3,
+        "store": 10,
+        "category": 3,
+        "department": 7,
+        "store_x_dept": 70
+      },
+      "A_head": {
+        "state": 1,
+        "store": 1,
+        "category": 3,
+        "department": 6,
+        "store_x_dept": 6
+      },
+      "B_stratified": {
+        "state": 3,
+        "store": 10,
+        "category": 3,
+        "department": 7,
+        "store_x_dept": 70
+      }
+    },
+    "counts_file": "experiments/sampling_bias/sampling_coverage.csv",
+    "manifest_file": "experiments/sampling_bias/sampling_manifest.csv"
+  },
+  "cells": {
+    "arm_a_on_cohort_a": {
+      "wape_percent": 82.5704,
+      "mae_units": 0.8437,
+      "rows": 56000,
+      "series": 2000,
+      "total_actual_units": 57219.0,
+      "official": {
+        "overall": {
+          "wape_percent": 82.5704,
+          "mae_units": 0.8437,
+          "rows": 56000
+        },
+        "by_horizon": {
+          "7": {
+            "wape_percent": 80.2044,
+            "mae_units": 0.8578,
+            "rows": 14000
+          },
+          "14": {
+            "wape_percent": 80.9771,
+            "mae_units": 0.8532,
+            "rows": 28000
+          },
+          "28": {
+            "wape_percent": 82.5704,
+            "mae_units": 0.8437,
+            "rows": 56000
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 84.74,
+            "mae_units": 1.0867,
+            "rows": 10864
+          },
+          "HOBBIES": {
+            "wape_percent": 89.1149,
+            "mae_units": 0.8479,
+            "rows": 15820
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 78.0105,
+            "mae_units": 0.7513,
+            "rows": 29316
+          }
+        }
+      },
+      "breakdowns": {
+        "by_store": {
+          "CA_1": {
+            "wape_percent": 82.5704,
+            "mae_units": 0.8437,
+            "rows": 56000,
+            "series": 2000,
+            "total_actual_units": 57219.0,
+            "denominator_nonzero": true
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 84.74,
+            "mae_units": 1.0867,
+            "rows": 10864,
+            "series": 388,
+            "total_actual_units": 13932.0,
+            "denominator_nonzero": true
+          },
+          "HOBBIES": {
+            "wape_percent": 89.1149,
+            "mae_units": 0.8479,
+            "rows": 15820,
+            "series": 565,
+            "total_actual_units": 15053.0,
+            "denominator_nonzero": true
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 78.0105,
+            "mae_units": 0.7513,
+            "rows": 29316,
+            "series": 1047,
+            "total_actual_units": 28234.0,
+            "denominator_nonzero": true
+          }
+        }
+      },
+      "integrity": {
+        "cohort_series": 2000,
+        "cohort_series_with_predictions": 2000,
+        "series_without_predictions": 0,
+        "series_without_predictions_preview": [],
+        "predictions_for_series_outside_cohort": 0,
+        "predictions_for_series_outside_cohort_preview": [],
+        "actuals_for_series_outside_cohort": 0,
+        "evaluation_days": "d_1886..d_1913",
+        "evaluation_day_count": 28,
+        "actual_rows": 56000,
+        "expected_rows": 56000,
+        "prediction_rows": 56000,
+        "matched_rows": 56000,
+        "actual_rows_without_prediction": 0,
+        "predictions_without_actual": 0,
+        "nonfinite_predictions": 0,
+        "total_actual_units": 57219.0,
+        "complete": true
+      },
+      "predictions_source": "artifacts\\models\\hgb_poisson_v3\\validation_predictions.parquet"
+    },
+    "arm_b_on_cohort_b": {
+      "wape_percent": 75.2756,
+      "mae_units": 1.0727,
+      "rows": 56000,
+      "series": 2000,
+      "total_actual_units": 79804.0,
+      "official": {
+        "overall": {
+          "wape_percent": 75.2756,
+          "mae_units": 1.0727,
+          "rows": 56000
+        },
+        "by_horizon": {
+          "7": {
+            "wape_percent": 76.928,
+            "mae_units": 1.077,
+            "rows": 14000
+          },
+          "14": {
+            "wape_percent": 75.097,
+            "mae_units": 1.076,
+            "rows": 28000
+          },
+          "28": {
+            "wape_percent": 75.2756,
+            "mae_units": 1.0727,
+            "rows": 56000
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 71.3967,
+            "mae_units": 1.4599,
+            "rows": 26320
+          },
+          "HOBBIES": {
+            "wape_percent": 98.3384,
+            "mae_units": 0.6822,
+            "rows": 10360
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 77.5638,
+            "mae_units": 0.7546,
+            "rows": 19320
+          }
+        }
+      },
+      "breakdowns": {
+        "by_store": {
+          "CA_1": {
+            "wape_percent": 76.5035,
+            "mae_units": 1.0765,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 7880.0,
+            "denominator_nonzero": true
+          },
+          "CA_2": {
+            "wape_percent": 74.0637,
+            "mae_units": 1.1283,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 8531.0,
+            "denominator_nonzero": true
+          },
+          "CA_3": {
+            "wape_percent": 73.1941,
+            "mae_units": 1.839,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 14070.0,
+            "denominator_nonzero": true
+          },
+          "CA_4": {
+            "wape_percent": 96.7334,
+            "mae_units": 0.641,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 3711.0,
+            "denominator_nonzero": true
+          },
+          "TX_1": {
+            "wape_percent": 78.7172,
+            "mae_units": 0.8525,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 6065.0,
+            "denominator_nonzero": true
+          },
+          "TX_2": {
+            "wape_percent": 70.9016,
+            "mae_units": 0.9363,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 7395.0,
+            "denominator_nonzero": true
+          },
+          "TX_3": {
+            "wape_percent": 69.2032,
+            "mae_units": 1.1252,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 9105.0,
+            "denominator_nonzero": true
+          },
+          "WI_1": {
+            "wape_percent": 75.9017,
+            "mae_units": 0.9847,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 7265.0,
+            "denominator_nonzero": true
+          },
+          "WI_2": {
+            "wape_percent": 75.3695,
+            "mae_units": 1.2951,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 9623.0,
+            "denominator_nonzero": true
+          },
+          "WI_3": {
+            "wape_percent": 77.1642,
+            "mae_units": 0.8487,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 6159.0,
+            "denominator_nonzero": true
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 71.3967,
+            "mae_units": 1.4599,
+            "rows": 26320,
+            "series": 940,
+            "total_actual_units": 53820.0,
+            "denominator_nonzero": true
+          },
+          "HOBBIES": {
+            "wape_percent": 98.3384,
+            "mae_units": 0.6822,
+            "rows": 10360,
+            "series": 370,
+            "total_actual_units": 7187.0,
+            "denominator_nonzero": true
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 77.5638,
+            "mae_units": 0.7546,
+            "rows": 19320,
+            "series": 690,
+            "total_actual_units": 18797.0,
+            "denominator_nonzero": true
+          }
+        }
+      },
+      "integrity": {
+        "cohort_series": 2000,
+        "cohort_series_with_predictions": 2000,
+        "series_without_predictions": 0,
+        "series_without_predictions_preview": [],
+        "predictions_for_series_outside_cohort": 0,
+        "predictions_for_series_outside_cohort_preview": [],
+        "actuals_for_series_outside_cohort": 0,
+        "evaluation_days": "d_1886..d_1913",
+        "evaluation_day_count": 28,
+        "actual_rows": 56000,
+        "expected_rows": 56000,
+        "prediction_rows": 56000,
+        "matched_rows": 56000,
+        "actual_rows_without_prediction": 0,
+        "predictions_without_actual": 0,
+        "nonfinite_predictions": 0,
+        "total_actual_units": 79804.0,
+        "complete": true
+      },
+      "predictions_source": "experiments\\sampling_bias\\models\\arm_b_stratified\\validation_predictions.parquet"
+    },
+    "arm_b_on_cohort_a": {
+      "wape_percent": 83.2208,
+      "mae_units": 0.8503,
+      "rows": 56000,
+      "series": 2000,
+      "total_actual_units": 57219.0,
+      "official": {
+        "overall": {
+          "wape_percent": 83.2208,
+          "mae_units": 0.8503,
+          "rows": 56000
+        },
+        "by_horizon": {
+          "7": {
+            "wape_percent": 81.2329,
+            "mae_units": 0.8688,
+            "rows": 14000
+          },
+          "14": {
+            "wape_percent": 81.8044,
+            "mae_units": 0.8619,
+            "rows": 28000
+          },
+          "28": {
+            "wape_percent": 83.2208,
+            "mae_units": 0.8503,
+            "rows": 56000
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 82.8475,
+            "mae_units": 1.0624,
+            "rows": 10864
+          },
+          "HOBBIES": {
+            "wape_percent": 89.6635,
+            "mae_units": 0.8532,
+            "rows": 15820
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 79.97,
+            "mae_units": 0.7702,
+            "rows": 29316
+          }
+        }
+      },
+      "breakdowns": {
+        "by_store": {
+          "CA_1": {
+            "wape_percent": 83.2208,
+            "mae_units": 0.8503,
+            "rows": 56000,
+            "series": 2000,
+            "total_actual_units": 57219.0,
+            "denominator_nonzero": true
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 82.8475,
+            "mae_units": 1.0624,
+            "rows": 10864,
+            "series": 388,
+            "total_actual_units": 13932.0,
+            "denominator_nonzero": true
+          },
+          "HOBBIES": {
+            "wape_percent": 89.6635,
+            "mae_units": 0.8532,
+            "rows": 15820,
+            "series": 565,
+            "total_actual_units": 15053.0,
+            "denominator_nonzero": true
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 79.97,
+            "mae_units": 0.7702,
+            "rows": 29316,
+            "series": 1047,
+            "total_actual_units": 28234.0,
+            "denominator_nonzero": true
+          }
+        }
+      },
+      "integrity": {
+        "cohort_series": 2000,
+        "cohort_series_with_predictions": 2000,
+        "series_without_predictions": 0,
+        "series_without_predictions_preview": [],
+        "predictions_for_series_outside_cohort": 0,
+        "predictions_for_series_outside_cohort_preview": [],
+        "actuals_for_series_outside_cohort": 0,
+        "evaluation_days": "d_1886..d_1913",
+        "evaluation_day_count": 28,
+        "actual_rows": 56000,
+        "expected_rows": 56000,
+        "prediction_rows": 56000,
+        "matched_rows": 56000,
+        "actual_rows_without_prediction": 0,
+        "predictions_without_actual": 0,
+        "nonfinite_predictions": 0,
+        "total_actual_units": 57219.0,
+        "complete": true
+      },
+      "predictions_source": "experiments/sampling_bias/predictions/arm_b__on__cohort_a.parquet",
+      "model_coverage": {
+        "model_store_levels": [
+          "CA_1",
+          "CA_2",
+          "CA_3",
+          "CA_4",
+          "TX_1",
+          "TX_2",
+          "TX_3",
+          "WI_1",
+          "WI_2",
+          "WI_3"
+        ],
+        "cohort_stores": [
+          "CA_1"
+        ],
+        "cohort_stores_unseen_by_model": [],
+        "series_in_unseen_stores": 0,
+        "series_with_fitted_scale": 131,
+        "series_using_global_scale_fallback": 1869,
+        "global_scale": 0.7397606379556657,
+        "postprocess_present": true
+      }
+    },
+    "arm_a_on_cohort_b": {
+      "wape_percent": 70.5424,
+      "mae_units": 1.0053,
+      "rows": 56000,
+      "series": 2000,
+      "total_actual_units": 79804.0,
+      "official": {
+        "overall": {
+          "wape_percent": 70.5424,
+          "mae_units": 1.0053,
+          "rows": 56000
+        },
+        "by_horizon": {
+          "7": {
+            "wape_percent": 69.9657,
+            "mae_units": 0.9796,
+            "rows": 14000
+          },
+          "14": {
+            "wape_percent": 69.8476,
+            "mae_units": 1.0008,
+            "rows": 28000
+          },
+          "28": {
+            "wape_percent": 70.5424,
+            "mae_units": 1.0053,
+            "rows": 56000
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 64.8907,
+            "mae_units": 1.3269,
+            "rows": 26320
+          },
+          "HOBBIES": {
+            "wape_percent": 96.0236,
+            "mae_units": 0.6661,
+            "rows": 10360
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 76.9818,
+            "mae_units": 0.749,
+            "rows": 19320
+          }
+        }
+      },
+      "breakdowns": {
+        "by_store": {
+          "CA_1": {
+            "wape_percent": 76.7574,
+            "mae_units": 1.0801,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 7880.0,
+            "denominator_nonzero": true
+          },
+          "CA_2": {
+            "wape_percent": 72.776,
+            "mae_units": 1.1087,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 8531.0,
+            "denominator_nonzero": true
+          },
+          "CA_3": {
+            "wape_percent": 58.119,
+            "mae_units": 1.4602,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 14070.0,
+            "denominator_nonzero": true
+          },
+          "CA_4": {
+            "wape_percent": 96.4732,
+            "mae_units": 0.6393,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 3711.0,
+            "denominator_nonzero": true
+          },
+          "TX_1": {
+            "wape_percent": 74.402,
+            "mae_units": 0.8058,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 6065.0,
+            "denominator_nonzero": true
+          },
+          "TX_2": {
+            "wape_percent": 68.0317,
+            "mae_units": 0.8984,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 7395.0,
+            "denominator_nonzero": true
+          },
+          "TX_3": {
+            "wape_percent": 60.5168,
+            "mae_units": 0.9839,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 9105.0,
+            "denominator_nonzero": true
+          },
+          "WI_1": {
+            "wape_percent": 73.813,
+            "mae_units": 0.9576,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 7265.0,
+            "denominator_nonzero": true
+          },
+          "WI_2": {
+            "wape_percent": 74.0318,
+            "mae_units": 1.2722,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 9623.0,
+            "denominator_nonzero": true
+          },
+          "WI_3": {
+            "wape_percent": 76.9789,
+            "mae_units": 0.8466,
+            "rows": 5600,
+            "series": 200,
+            "total_actual_units": 6159.0,
+            "denominator_nonzero": true
+          }
+        },
+        "by_category": {
+          "FOODS": {
+            "wape_percent": 64.8907,
+            "mae_units": 1.3269,
+            "rows": 26320,
+            "series": 940,
+            "total_actual_units": 53820.0,
+            "denominator_nonzero": true
+          },
+          "HOBBIES": {
+            "wape_percent": 96.0236,
+            "mae_units": 0.6661,
+            "rows": 10360,
+            "series": 370,
+            "total_actual_units": 7187.0,
+            "denominator_nonzero": true
+          },
+          "HOUSEHOLD": {
+            "wape_percent": 76.9818,
+            "mae_units": 0.749,
+            "rows": 19320,
+            "series": 690,
+            "total_actual_units": 18797.0,
+            "denominator_nonzero": true
+          }
+        }
+      },
+      "integrity": {
+        "cohort_series": 2000,
+        "cohort_series_with_predictions": 2000,
+        "series_without_predictions": 0,
+        "series_without_predictions_preview": [],
+        "predictions_for_series_outside_cohort": 0,
+        "predictions_for_series_outside_cohort_preview": [],
+        "actuals_for_series_outside_cohort": 0,
+        "evaluation_days": "d_1886..d_1913",
+        "evaluation_day_count": 28,
+        "actual_rows": 56000,
+        "expected_rows": 56000,
+        "prediction_rows": 56000,
+        "matched_rows": 56000,
+        "actual_rows_without_prediction": 0,
+        "predictions_without_actual": 0,
+        "nonfinite_predictions": 0,
+        "total_actual_units": 79804.0,
+        "complete": true
+      },
+      "predictions_source": "experiments/sampling_bias/predictions/arm_a__on__cohort_b.parquet",
+      "model_coverage": {
+        "model_store_levels": [
+          "CA_1"
+        ],
+        "cohort_stores": [
+          "CA_1",
+          "CA_2",
+          "CA_3",
+          "CA_4",
+          "TX_1",
+          "TX_2",
+          "TX_3",
+          "WI_1",
+          "WI_2",
+          "WI_3"
+        ],
+        "cohort_stores_unseen_by_model": [
+          "CA_2",
+          "CA_3",
+          "CA_4",
+          "TX_1",
+          "TX_2",
+          "TX_3",
+          "WI_1",
+          "WI_2",
+          "WI_3"
+        ],
+        "series_in_unseen_stores": 1800,
+        "series_with_fitted_scale": 131,
+        "series_using_global_scale_fallback": 1869,
+        "global_scale": 0.7450287366761059,
+        "postprocess_present": true
+      }
+    }
+  },
+  "comparison_1_common_cohorts": {
+    "cohort_a": {
+      "series": 2000,
+      "rows": 56000,
+      "total_actual_units": 57219.0,
+      "arm_a_cell": "arm_a_on_cohort_a",
+      "arm_b_cell": "arm_b_on_cohort_a",
+      "delta": {
+        "arm_a_wape_percent": 82.5704,
+        "arm_b_wape_percent": 83.2208,
+        "delta_pp": 0.6504,
+        "relative_change_percent": 0.7877,
+        "arm_a_mae_units": 0.8437,
+        "arm_b_mae_units": 0.8503,
+        "mae_delta_units": 0.0066,
+        "winner": "arm_a",
+        "rows": 56000,
+        "series": 2000,
+        "total_actual_units": 57219.0,
+        "cohorts_identical": true,
+        "per_store": {
+          "CA_1": {
+            "arm_a_wape": 82.5704,
+            "arm_b_wape": 83.2208,
+            "delta_pp": 0.6504,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          }
+        },
+        "per_category": {
+          "FOODS": {
+            "arm_a_wape": 84.74,
+            "arm_b_wape": 82.8475,
+            "delta_pp": -1.8925,
+            "denominator_nonzero": true,
+            "winner": "arm_b"
+          },
+          "HOBBIES": {
+            "arm_a_wape": 89.1149,
+            "arm_b_wape": 89.6635,
+            "delta_pp": 0.5486,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "HOUSEHOLD": {
+            "arm_a_wape": 78.0105,
+            "arm_b_wape": 79.97,
+            "delta_pp": 1.9595,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          }
+        },
+        "per_store_sweep": {
+          "arm_b_better_in": 0,
+          "arm_a_better_in": 1,
+          "ties": 0,
+          "undecided_zero_denominator": 0
+        },
+        "per_category_sweep": {
+          "arm_b_better_in": 1,
+          "arm_a_better_in": 2,
+          "ties": 0,
+          "undecided_zero_denominator": 0
+        }
+      }
+    },
+    "cohort_b": {
+      "series": 2000,
+      "rows": 56000,
+      "total_actual_units": 79804.0,
+      "arm_a_cell": "arm_a_on_cohort_b",
+      "arm_b_cell": "arm_b_on_cohort_b",
+      "delta": {
+        "arm_a_wape_percent": 70.5424,
+        "arm_b_wape_percent": 75.2756,
+        "delta_pp": 4.7332,
+        "relative_change_percent": 6.7097,
+        "arm_a_mae_units": 1.0053,
+        "arm_b_mae_units": 1.0727,
+        "mae_delta_units": 0.0674,
+        "winner": "arm_a",
+        "rows": 56000,
+        "series": 2000,
+        "total_actual_units": 79804.0,
+        "cohorts_identical": true,
+        "per_store": {
+          "CA_1": {
+            "arm_a_wape": 76.7574,
+            "arm_b_wape": 76.5035,
+            "delta_pp": -0.2539,
+            "denominator_nonzero": true,
+            "winner": "arm_b"
+          },
+          "CA_2": {
+            "arm_a_wape": 72.776,
+            "arm_b_wape": 74.0637,
+            "delta_pp": 1.2877,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "CA_3": {
+            "arm_a_wape": 58.119,
+            "arm_b_wape": 73.1941,
+            "delta_pp": 15.0751,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "CA_4": {
+            "arm_a_wape": 96.4732,
+            "arm_b_wape": 96.7334,
+            "delta_pp": 0.2602,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "TX_1": {
+            "arm_a_wape": 74.402,
+            "arm_b_wape": 78.7172,
+            "delta_pp": 4.3152,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "TX_2": {
+            "arm_a_wape": 68.0317,
+            "arm_b_wape": 70.9016,
+            "delta_pp": 2.8699,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "TX_3": {
+            "arm_a_wape": 60.5168,
+            "arm_b_wape": 69.2032,
+            "delta_pp": 8.6864,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "WI_1": {
+            "arm_a_wape": 73.813,
+            "arm_b_wape": 75.9017,
+            "delta_pp": 2.0887,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "WI_2": {
+            "arm_a_wape": 74.0318,
+            "arm_b_wape": 75.3695,
+            "delta_pp": 1.3377,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "WI_3": {
+            "arm_a_wape": 76.9789,
+            "arm_b_wape": 77.1642,
+            "delta_pp": 0.1853,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          }
+        },
+        "per_category": {
+          "FOODS": {
+            "arm_a_wape": 64.8907,
+            "arm_b_wape": 71.3967,
+            "delta_pp": 6.506,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "HOBBIES": {
+            "arm_a_wape": 96.0236,
+            "arm_b_wape": 98.3384,
+            "delta_pp": 2.3148,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          },
+          "HOUSEHOLD": {
+            "arm_a_wape": 76.9818,
+            "arm_b_wape": 77.5638,
+            "delta_pp": 0.582,
+            "denominator_nonzero": true,
+            "winner": "arm_a"
+          }
+        },
+        "per_store_sweep": {
+          "arm_b_better_in": 1,
+          "arm_a_better_in": 9,
+          "ties": 0,
+          "undecided_zero_denominator": 0
+        },
+        "per_category_sweep": {
+          "arm_b_better_in": 0,
+          "arm_a_better_in": 3,
+          "ties": 0,
+          "undecided_zero_denominator": 0
+        }
+      }
+    }
+  },
+  "comparison_2_within_sample": {
+    "note": "Secondary diagnostic: each model scored on ITS OWN selected 2,000 series. The evaluated series differ between arms, so this is NOT apples-to-apples; the primary conclusion uses comparison_1 (fixed common cohorts).",
+    "arm_a_cell": "arm_a_on_cohort_a",
+    "arm_b_cell": "arm_b_on_cohort_b",
+    "delta": {
+      "arm_a_wape_percent": 82.5704,
+      "arm_b_wape_percent": 75.2756,
+      "delta_pp": -7.2948,
+      "relative_change_percent": -8.8346,
+      "arm_a_mae_units": 0.8437,
+      "arm_b_mae_units": 1.0727,
+      "mae_delta_units": 0.229,
+      "winner": "arm_b",
+      "rows": 56000,
+      "series": 2000,
+      "total_actual_units": 57219.0,
+      "cohorts_identical": true,
+      "per_store": {
+        "CA_1": {
+          "arm_a_wape": 82.5704,
+          "arm_b_wape": 76.5035,
+          "delta_pp": -6.0669,
+          "denominator_nonzero": true,
+          "winner": "arm_b"
+        },
+        "CA_2": {},
+        "CA_3": {},
+        "CA_4": {},
+        "TX_1": {},
+        "TX_2": {},
+        "TX_3": {},
+        "WI_1": {},
+        "WI_2": {},
+        "WI_3": {}
+      },
+      "per_category": {
+        "FOODS": {
+          "arm_a_wape": 84.74,
+          "arm_b_wape": 71.3967,
+          "delta_pp": -13.3433,
+          "denominator_nonzero": true,
+          "winner": "arm_b"
+        },
+        "HOBBIES": {
+          "arm_a_wape": 89.1149,
+          "arm_b_wape": 98.3384,
+          "delta_pp": 9.2235,
+          "denominator_nonzero": true,
+          "winner": "arm_a"
+        },
+        "HOUSEHOLD": {
+          "arm_a_wape": 78.0105,
+          "arm_b_wape": 77.5638,
+          "delta_pp": -0.4467,
+          "denominator_nonzero": true,
+          "winner": "arm_b"
+        }
+      },
+      "per_store_sweep": {
+        "arm_b_better_in": 1,
+        "arm_a_better_in": 0,
+        "ties": 0,
+        "undecided_zero_denominator": 9
+      },
+      "per_category_sweep": {
+        "arm_b_better_in": 2,
+        "arm_a_better_in": 1,
+        "ties": 0,
+        "undecided_zero_denominator": 0
+      }
+    },
+    "cohorts_identical": false
+  },
+  "resources": {
+    "arm_a_training_seconds": {
+      "seconds": 280.4,
+      "source": "PROGRESS.md:397 (official run #2; not re-measured)"
+    },
+    "arm_b_training_seconds": 200.4,
+    "arm_b_stage_seconds": 200.5,
+    "arm_b_peak_rss_mb": 4856.0,
+    "arm_a_peak_rss_mb": null,
+    "arm_a_peak_rss_note": "not measured - Arm A was loaded from saved artifacts, never retrained by this experiment",
+    "stage_resources_file": "experiments/sampling_bias/stage_resources.json"
+  }
+}

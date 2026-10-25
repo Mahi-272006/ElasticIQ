@@ -1,0 +1,107 @@
+{
+  "version": "arm_b_stratified",
+  "trained_at_utc": "2026-10-25T13:27:20.498181+00:00",
+  "algorithm": "HistGradientBoostingRegressor",
+  "loss": "poisson",
+  "hyperparameters": {
+    "learning_rate": 0.05,
+    "max_iter_requested": 300,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 20,
+    "early_stopping": true,
+    "random_seed": 42
+  },
+  "library_versions": {
+    "python": "3.14.0",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1"
+  },
+  "training": {
+    "sample_selection": "first 2,000 series in file order (deterministic head selection from the processed panel)",
+    "series": 2000,
+    "train_rows": 2938519,
+    "train_days": "d_1..d_1885",
+    "validation_days": "d_1886..d_1913"
+  },
+  "features": {
+    "numeric": [
+      "lag_1",
+      "lag_3",
+      "lag_7",
+      "lag_14",
+      "lag_28",
+      "rolling_mean_7",
+      "rolling_std_7",
+      "rolling_mean_14",
+      "rolling_mean_28",
+      "rolling_std_28",
+      "rolling_mean_56",
+      "log1p_lag_1",
+      "log1p_rolling_mean_28",
+      "sell_price",
+      "price_rel_change_7",
+      "wday",
+      "month",
+      "is_event",
+      "snap",
+      "day_trend"
+    ],
+    "categorical": [
+      "cat_id",
+      "dept_id",
+      "store_id",
+      "state_id"
+    ],
+    "leakage_controls": [
+      "lags and rolling windows shift(1) before rolling",
+      "recursive inference feeds predictions back, never validation actuals",
+      "calendar features (weekday, month, SNAP, events) are known in advance",
+      "postprocess scales fitted on a window the inner model never trained on"
+    ]
+  },
+  "postprocess": {
+    "formula": "final[id, day] = scale[id] x level[id] x shape[id, day]; level = mean of the last level_window observed days, shape = raw / series mean, scale = leak-free fit",
+    "level_window": 14,
+    "shrink": 300.0,
+    "clip": [
+      0.05,
+      4.0
+    ],
+    "fitted_series": 2000,
+    "fitted_rows": 56000,
+    "global_scale": 0.739761,
+    "fitted_on": {
+      "inner_model_train_days": "d_1..d_1857",
+      "scale_fit_days": "d_1858..d_1885",
+      "scale_fit_rows": 56000,
+      "note": "cross-fitted: inner model never trains on its fitting window; the window itself precedes validation"
+    }
+  },
+  "assumptions": [
+    "future sell prices equal the last observed price unless supplied",
+    "future SNAP/event calendar known (M5 calendar is fully observed)"
+  ],
+  "supported_horizons": [
+    7,
+    14,
+    28
+  ],
+  "evaluation_summary": {
+    "7": {
+      "wape_percent": 76.928,
+      "mae_units": 1.077,
+      "rows": 14000
+    },
+    "14": {
+      "wape_percent": 75.097,
+      "mae_units": 1.076,
+      "rows": 28000
+    },
+    "28": {
+      "wape_percent": 75.2756,
+      "mae_units": 1.0727,
+      "rows": 56000
+    }
+  }
+}

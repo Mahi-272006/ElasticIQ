@@ -1,0 +1,39 @@
+{
+  "generated_at_utc": "2026-10-25T13:22:51.154626+00:00",
+  "n_series_per_arm": 2000,
+  "seed": 42,
+  "strata": "store_id x dept_id",
+  "allocation_rule": "proportional to stratum size with the largest-remainder rule (integer counts sum to exactly 2000); every non-empty stratum gets >= 1",
+  "arm_a_selection": "first 2,000 series in sales_train_validation.csv file order (production head(2000))",
+  "arm_b_selection": "store x department proportional stratified random sample, seed 42",
+  "series": {
+    "A_head": 2000,
+    "B_stratified": 2000
+  },
+  "overlap_series": 131,
+  "coverage_summary": {
+    "population": {
+      "state": 3,
+      "store": 10,
+      "category": 3,
+      "department": 7,
+      "store_x_dept": 70
+    },
+    "A_head": {
+      "state": 1,
+      "store": 1,
+      "category": 3,
+      "department": 6,
+      "store_x_dept": 6
+    },
+    "B_stratified": {
+      "state": 3,
+      "store": 10,
+      "category": 3,
+      "department": 7,
+      "store_x_dept": 70
+    }
+  },
+  "manifest_rows": 4000,
+  "coverage_rows": 93
+}

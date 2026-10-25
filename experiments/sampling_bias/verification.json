@@ -1,0 +1,102 @@
+{
+  "generated_at_utc": "2026-10-25T13:22:46.575795+00:00",
+  "git": {
+    "head": "43ec8ed64a179765fbb5851138d738b530cd695c",
+    "branch": "main",
+    "status_porcelain": "?? experiments/",
+    "changes_outside_experiment_dir": [],
+    "production_tree_untouched": true,
+    "working_tree_clean_before_experiment": false,
+    "last_commit_subject": "frontend changes",
+    "committed_by_experiment": false,
+    "pushed_by_experiment": false
+  },
+  "environment": {
+    "python": "3.14.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scikit_learn": "1.9.1",
+    "random_seed": 42,
+    "cpu_count": 12
+  },
+  "wape_definition": "src/evaluation/metrics.py wape() = sum(|actual - predicted|) / sum(|actual|) * 100 (0.0 when both sums are 0, inf otherwise)",
+  "arm_a_reproduction": {
+    "model_version": "hgb_poisson_v3",
+    "loaded_from_saved_artifacts": true,
+    "retrained_by_experiment": false,
+    "bundle_path": "artifacts\\models\\hgb_poisson_v3\\bundle.joblib",
+    "predictions_path": "artifacts\\models\\hgb_poisson_v3\\validation_predictions.parquet",
+    "predictions_sha256": "2e0f0e57dde1b3379e79094fbd583d33919869e2960a8de66eb5f8d8ad1c989f",
+    "evaluation_path": "artifacts\\models\\hgb_poisson_v3\\evaluation.json",
+    "saved_wape_percent": 82.5704,
+    "recomputed_wape_percent": 82.5704,
+    "saved_mae_units": 0.8437,
+    "recomputed_mae_units": 0.8437,
+    "matches_saved_metrics": true,
+    "cohort_equals_head_selection": true,
+    "cohort_series": 2000,
+    "rows": 56000,
+    "evaluation_days": "d_1886..d_1913",
+    "evaluation_day_count": 28,
+    "trained_at_utc": "2026-10-25T09:01:55.684931+00:00",
+    "recorded_training_seconds": {
+      "seconds": 280.4,
+      "source": "PROGRESS.md:397 (official run #2; not re-measured)"
+    },
+    "hyperparameters": {
+      "learning_rate": 0.05,
+      "max_iter_requested": 300,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 20,
+      "early_stopping": true,
+      "random_seed": 42
+    },
+    "training": {
+      "sample_selection": "first 2,000 series in file order (deterministic head selection from the processed panel)",
+      "series": 2000,
+      "train_rows": 3017710,
+      "train_days": "d_1..d_1885",
+      "validation_days": "d_1886..d_1913"
+    }
+  },
+  "holdout_check": {
+    "verdict": "candidate_final_holdout",
+    "validation_file_last_day": "d_1913",
+    "evaluation_file_last_day": "d_1941",
+    "evaluation_file_extra_days": 28,
+    "extra_day_span": "d_1914..d_1941",
+    "calendar_covers_holdout": true,
+    "calendar_max_day": 1969,
+    "processed_panel_max_day": 1913,
+    "processed_panel_series": 2000,
+    "processed_outputs_stop_before_holdout": true,
+    "repository_references": 17,
+    "schema_or_data_quality_references": 17,
+    "metric_tuning_or_model_selection_references": 0,
+    "metric_level_matches": [],
+    "notes": [
+      "Scanned src/, tests/, root markdown, artifacts JSON/markdown and processed reports for 'sales_train_evaluation' or d_1914..d_1941.",
+      "References inside src/data/{loader,validation,full_validation}.py and tests are schema/data-quality scans only.",
+      "This experiment did NOT score the holdout; it stays unspent until model and sampling decisions are frozen.",
+      "Code/artifact usage is verifiable; ad-hoc human inspection of the raw CSV cannot be excluded, hence the qualified verdict."
+    ]
+  },
+  "calibration_check": {
+    "model_version": "hgb_poisson_v3",
+    "outer_training_days": "d_1..d_1885",
+    "evaluation_days": "d_1886..d_1913",
+    "inner_model_training_days": "d_1..d_1857",
+    "scale_fit_days": "d_1858..d_1885",
+    "checks": {
+      "outer_training_ends_before_evaluation": true,
+      "scale_window_ends_before_evaluation": true,
+      "inner_training_ends_before_scale_window": true,
+      "scale_window_inside_outer_training": true
+    },
+    "calibration_uses_evaluated_observations": false,
+    "leakage_risk_found": false,
+    "action": "documented only - calibration left unchanged by this experiment"
+  },
+  "production_artifacts_modified": false
+}

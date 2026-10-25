@@ -1,0 +1,40 @@
+{
+  "series": 2000,
+  "wide_rows": 2000,
+  "day_columns": 1913,
+  "panel_rows": 3826000,
+  "panel_day_min": 1,
+  "panel_day_max": 1913,
+  "panel_columns": [
+    "id",
+    "item_id",
+    "dept_id",
+    "cat_id",
+    "store_id",
+    "state_id",
+    "d",
+    "units",
+    "day_idx",
+    "date",
+    "wm_yr_wk",
+    "wday",
+    "month",
+    "is_event",
+    "snap",
+    "sell_price"
+  ],
+  "expected_panel_rows": 3826000,
+  "panel_is_dense": true,
+  "sample_panel_path": "E:\\ElasticIQ\\experiments\\sampling_bias\\processed_arm_b\\sample_panel.parquet",
+  "calendar_path": "E:\\ElasticIQ\\experiments\\sampling_bias\\processed_arm_b\\calendar.parquet",
+  "built_with": "production melt_sales_long + attach_calendar_fields + attach_prices (src/data/pipeline.py), unmodified",
+  "elapsed_seconds": 53.9,
+  "overlap_check": {
+    "overlap_series": 131,
+    "checked": true,
+    "candidate_rows": 250603,
+    "reference_rows": 250603,
+    "identical": true
+  },
+  "generated_at_utc": "2026-10-25T13:23:58.295297+00:00"
+}

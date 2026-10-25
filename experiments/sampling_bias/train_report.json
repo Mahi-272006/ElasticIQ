@@ -1,0 +1,30 @@
+{
+  "generated_at_utc": "2026-10-25T13:27:20.962795+00:00",
+  "arm": "B_stratified",
+  "model_version": "arm_b_stratified",
+  "artifacts_dir": "E:\\ElasticIQ\\experiments\\sampling_bias\\models\\arm_b_stratified",
+  "training_elapsed_seconds": 200.4,
+  "stage_elapsed_seconds": 200.5,
+  "peak_rss_mb": 4856.0,
+  "train_rows": 2938519,
+  "series": 2000,
+  "train_days": "d_1..d_1885",
+  "validation_days": "d_1886..d_1913",
+  "hyperparameters": {
+    "learning_rate": 0.05,
+    "max_iter_requested": 300,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 20,
+    "early_stopping": true,
+    "random_seed": 42
+  },
+  "evaluation_model_overall": {
+    "wape_percent": 75.2756,
+    "mae_units": 1.0727,
+    "rows": 56000
+  },
+  "notes": [
+    "Trained by importing src.forecasting.train.run_training unchanged; only processed_dir and models_dir point into the experiment directory.",
+    "metadata.json inside this model directory is written by the unmodified production code, so its sample_selection string is the stock head-selection wording - it is WRONG for Arm B. The authoritative Arm B selection record is sampling_manifest.csv."
+  ]
+}
